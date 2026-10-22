@@ -1,0 +1,76 @@
+@model Class_group_master
+
+@{
+    ViewData["Title"] = "Create Group";
+}
+
+<div class="container mt-3">
+    <h2>Create Group</h2>
+    <hr />
+    <form asp-action="Create" method="post" id="group-form">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="group_desc" class="form-label mandatory"></label>
+                    <input asp-for="group_desc" class="form-control" id="group-desc" />
+                    <span asp-validation-for="group_desc" class="text-danger"></span>
+                    <div id="group-desc-unique" class="text-danger mt-1" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-submit" id="submit-btn">Submit</button>
+            <a asp-action="Index" class="btn btn-list">List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function(){
+            var nameInput = document.getElementById('group-desc');
+            var submitBtn = document.getElementById('submit-btn');
+            var nameMsg = document.getElementById('group-desc-unique');
+            var form = document.getElementById('group-form');
+
+            function setValidity(unique, text){
+                if(unique){
+                    nameMsg.style.display = 'none';
+                    nameMsg.textContent = '';
+                } else {
+                    nameMsg.style.display = 'block';
+                    nameMsg.textContent = text || 'Group desc already exists';
+                }
+                updateSubmitButton();
+            }
+
+            function updateSubmitButton(){
+                var nameValid = nameMsg.style.display === 'none' || nameMsg.style.display === '';
+                submitBtn.disabled = !nameValid;
+            }
+
+            async function checkName(){
+                var name = (nameInput.value || '').trim();
+                if(!name){
+                    setValidity(false, 'Group Desc is required');
+                    return;
+                }
+                try {
+                    var url = '@Url.Action("CheckNameUnique", "GroupMaster")' + '?name=' + encodeURIComponent(name);
+                    var resp = await fetch(url, { credentials: 'same-origin' });
+                    if(!resp.ok){ setValidity(false, 'Validation failed'); return; }
+                    var data = await resp.json();
+                    setValidity(!!data.unique, data.message);
+                } catch(e){
+                    setValidity(false, 'Validation error');
+                }
+            }
+
+            nameInput.addEventListener('blur', checkName);
+            form.addEventListener('submit', function(e){
+                if(submitBtn.disabled){ e.preventDefault(); }
+            });
+        })();
+    </script>
+}

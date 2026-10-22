@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewData["Title"] = "Validation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="page-title">
+    Process Qualification - List
+    <span class="mandatory-note">
+        <a href="@Url.Action("Create","PrcValidation")" class="btn btn-custom btn-add-new">Add New</a>
+    </span>
+</h3>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="tbldata"></div>
+    </div>
+</div>
+<script>
+
+    chkresponse();
+    function chkresponse() {
+        var msg = '@TempData["msg"]';
+        if (msg == 'Data Submitted') {
+            showSubmitAlert();
+        }
+        else if (msg == 'Data Saved') {
+            showSaveAlert();
+        }
+        else if (msg == 'Data Deleted') {
+            showDeleteAlert();
+        }
+    }
+    function initializeTabulator(mydata) {
+        var ttable = new Tabulator("#tbldata", {
+            reactiveData: true,
+            data: mydata, //set initial table data
+            headerFilter: "input",
+            resizableColumnFit: true,
+            ajaxConfig: "GET",
+            ajaxContentType: "json",
+            placeholder: "No Data Available",
+            height: "450px",
+            layout: "fitColumns",
+            selectable: 1,
+            pagination: "local",
+            paginationSize: 20,
+            paginationSizeSelector: [10, 20, 50, 100, true],
+            paginationCounter: "rows",
+            headerFilter: "input",
+            resizableColumnFit: true,
+            empty: "No data found",
+            layout: "fitData",
+            columns: [
+                {
+                    formatter: "html",
+                    title: "Edit",
+                    field: "edit",
+                    hozAlign: "center",
+                    headerSort: false,
+                    width: 40,
+                    cellClick: handleEditClick,
+                    formatter: editIconColumn
+                },
+                { title: "hdr_slno", field: "hdr_slno" },
+                { title: "Validation Date", field: "validation_date"},
+                { title: "ProcessCode", field: "proc_code" },
+                { title: "Process Name", field: "proc_name", headerFilter: "input" },
+                { title: "Machine", field: "machine_name" },
+                { title: "Parts", field: "ItemName" },
+                {
+                    formatter: "html",
+                    title: "Delete",
+                    field: "delete",
+                    hozAlign: "center",
+                    headerSort: false,
+                    width: 40,
+                    cellClick: handleDeleteClick,
+                    formatter: deleteIconColumn
+                },
+            ],
+            empty: "No data found",
+        });
+           ttable.redraw(true);
+    }
+    function editIconColumn(cell, formatterParams) {
+        return "<i class='bi bi-pencil-square edit-icon' title='Edit'></i>";
+    }
+
+    function deleteIconColumn(cell, formatterParams) {
+        return "<i class='bi bi-trash-fill delete-icon' title='Delete'></i>";
+    }
+
+    // Define the cell click handlers
+    function handleEditClick(e, cell) {
+        var id = cell.getRow().getData().hdr_slno;
+        window.open('@Url.Action("Edit", "PrcValidation")?id=' + id, "_self");
+    }
+
+    function handleDeleteClick(e, cell) {
+        // Get the ID from the row data and redirect to the controller
+        var id = cell.getRow().getData().hdr_slno;
+            // display swal alert to confirm if the record should be deleted
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This Containment will be deleted",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Delete", "Containment")',
+                        data: { id: id },
+                        type: "POST",
+                        success: function (response) {
+                            if (response.status === "success") {
+                                Swal.fire(
+                                    "Deleted!",
+                                    "Data deleted.",
+                                    "success"
+                                );
+                                initializeTabulator(response.data);
+                            }
+                        }
+                    });
+                }
+            });
+    }
+
+    $(document).ready(function () {
+        var tableData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+        console.log('tableData:', tableData);
+        initializeTabulator(tableData);
+    });
+
+</script>
+

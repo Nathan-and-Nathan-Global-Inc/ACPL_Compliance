@@ -1,0 +1,295 @@
+﻿
+/* Define the Bootstrap Icons font-face */
+@font-face {
+    font-family: 'Bootstrap Icons';
+src: url('../lib/bootstrap_icons/fonts/bootstrap-icons.woff2') format('woff2'), url('@Url.Content("../lib/bootstrap_icons/fonts/bootstrap-icons.woff")') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Use Bootstrap Icons font */
+.bi {
+    font-family: 'Bootstrap Icons', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    display: inline-block;
+    text-align: center;
+}
+
+.button-container {
+    display: flex; /* Use flexbox to align buttons horizontally */
+    flex-wrap: wrap; /* Allow wrapping of buttons if needed */
+    gap: 1rem; /* Adjust the space between buttons */
+    justify-content: center; /* Center the buttons within the container */
+}
+
+.btn-custom {
+    border-radius: 0.25rem; /* Rounded corners */
+    padding: 0.5rem 1rem; /* Padding */
+    font-size: 0.875rem; /* Font size */
+    font-weight: 500; /* Font weight */
+    display: flex;
+    align-items: center; /* Vertically center the content */
+    justify-content: center; /* Horizontally center the content */
+    /*gap: 0.5rem;*/ /* Space between icon and text */
+    text-align: center; /* Center text in button */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition for hover */
+    color: #fff; /* Default text color for visibility */
+    line-height: 1.5; /* Adjust line height for vertical alignment */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Button styles */
+
+.btn-list {
+    background-color: #145FB0;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-list::before {
+        content: "\F479"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-list:hover {
+        background-color: #145FB0;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-add-new {
+    background-color: #052C65;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-add-new::before {
+        content: "\F4FE"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-add-new:hover {
+        background-color: #052C65;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-save {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+    .btn-save::before {
+        content: "\F525"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-save:hover {
+        background-color: #ffc107;
+        color: #212529;
+        /*box-shadow: 0 4px 8px var(--button-shadow-color);*/
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-submit {
+    background-color: #007bff;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-submit::before {
+        content: "\F270"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-submit:hover {
+        background-color: #007bff;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-approve {
+    background-color: #28a745;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-approve::before {
+        content: "\F272"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-approve:hover {
+        background-color: #28a745;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-reject {
+    background-color: #dc3545;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-reject::before {
+        content: "\F623"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-reject:hover {
+        background-color: #dc3545;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-download-excel {
+    background-color: #17a2b8;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-download-excel::before {
+        content: "\F368"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-download-excel:hover {
+        background-color: #17a2b8;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-download-pdf {
+    background-color: #087990;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-download-pdf::before {
+        content: "\F63E"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-download-pdf:hover {
+        background-color: #087990;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-calculate {
+    background-color: #CC9A06;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-calculate::before {
+        content: "\F1E0"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-calculate:hover {
+        background-color: #CC9A06;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-load-data {
+    background-color: #6610f2;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-load-data::before {
+        content: "\F29B"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-load-data:hover {
+        background-color: #6610f2;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-delete {
+    background-color: #B02A37;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-delete::before {
+        content: "\F5DE"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-delete:hover {
+        background-color: #B02A37;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-help {
+    background-color: mediumslateblue;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-help::before {
+        content: "\F431"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-help:hover {
+        background-color: #087990;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-filter {
+    background-color: #006536;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-filter::before {
+        content: "\F3CA"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-filter:hover {
+        background-color: #006536;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }
+
+.btn-graph {
+    background-color: #329ba8;
+    color: #fff; /* Ensure text color is white for contrast */
+}
+
+    .btn-graph::before {
+        content: "\F3F2"; /* Unicode for the icon */
+        font-family: 'Bootstrap Icons'; /* Ensure you have Bootstrap Icons loaded */
+        margin-right: 0.5rem; /* Space between icon and text */
+        display: inline-block;
+    }
+
+    .btn-graph:hover {
+        background-color: #329ba8;
+        color: #fff; /* Ensure text color is white for contrast */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+    }

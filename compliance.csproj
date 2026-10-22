@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <Version>1.1.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove=".template.config\**" />
+    <Compile Remove="Views\CustomerClosure\**" />
+    <Compile Remove="Views\InternalAuditors_O\**" />
+    <Compile Remove="Views\LayoutClosure\**" />
+    <Compile Remove="Views\PrcValidation\**" />
+    <Compile Remove="Views\ProcessAuditClosure\**" />
+    <Compile Remove="Views\ProductClosure\**" />
+    <Compile Remove="Views\SupplierAuditPlan_OLD\**" />
+    <Content Remove=".template.config\**" />
+    <Content Remove="Views\CustomerClosure\**" />
+    <Content Remove="Views\InternalAuditors_O\**" />
+    <Content Remove="Views\LayoutClosure\**" />
+    <Content Remove="Views\PrcValidation\**" />
+    <Content Remove="Views\ProcessAuditClosure\**" />
+    <Content Remove="Views\ProductClosure\**" />
+    <Content Remove="Views\SupplierAuditPlan_OLD\**" />
+    <EmbeddedResource Remove=".template.config\**" />
+    <EmbeddedResource Remove="Views\CustomerClosure\**" />
+    <EmbeddedResource Remove="Views\InternalAuditors_O\**" />
+    <EmbeddedResource Remove="Views\LayoutClosure\**" />
+    <EmbeddedResource Remove="Views\PrcValidation\**" />
+    <EmbeddedResource Remove="Views\ProcessAuditClosure\**" />
+    <EmbeddedResource Remove="Views\ProductClosure\**" />
+    <EmbeddedResource Remove="Views\SupplierAuditPlan_OLD\**" />
+    <None Remove=".template.config\**" />
+    <None Remove="Views\CustomerClosure\**" />
+    <None Remove="Views\InternalAuditors_O\**" />
+    <None Remove="Views\LayoutClosure\**" />
+    <None Remove="Views\PrcValidation\**" />
+    <None Remove="Views\ProcessAuditClosure\**" />
+    <None Remove="Views\ProductClosure\**" />
+    <None Remove="Views\SupplierAuditPlan_OLD\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\CustomerClosureController.cs" />
+    <Compile Remove="Controllers\InternalAuditors_OController.cs" />
+    <Compile Remove="Controllers\LayoutClosureController.cs" />
+    <Compile Remove="Controllers\PrcValidationController.cs" />
+    <Compile Remove="Controllers\ProcessAuditClosureController.cs" />
+    <Compile Remove="Controllers\ProductClosureController.cs" />
+    <Compile Remove="Controllers\SupplierAuditPlan_OLDController.cs" />
+    <Compile Remove="Models\Class_customer_audit_child6_closure.cs" />
+    <Compile Remove="Models\Class_internal_auditors_O.cs" />
+    <Compile Remove="Models\Class_Layout_audit_child6_closure.cs" />
+    <Compile Remove="Models\Class_process_audit_child6_closure.cs" />
+    <Compile Remove="Models\Class_product_audit_child6_closure.cs" />
+    <Compile Remove="Models\Class_supplier_audit_plan_old.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ElmahCore" Version="2.1.2" />
+    <PackageReference Include="ElmahCore.Sql" Version="2.1.2" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.14" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.12" />
+    <PackageReference Include="NPoco" Version="5.7.1" />
+    <PackageReference Include="NPoco.SqlServer" Version="5.7.1" />
+    <PackageReference Include="SupermarketRepository" Version="3.0.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\Content\plugins\daterangepicker\" />
+    <Folder Include="wwwroot\Sharedfiles\Uploadedfiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CommonClassLibrary">
+      <HintPath>wwwroot\dll_reference\CommonClassLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

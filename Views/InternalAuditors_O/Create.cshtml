@@ -1,0 +1,228 @@
+﻿@model Class_internal_auditors
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3 class="page-title">
+    Internal Auditors - Create
+    <span class="mandatory-note">* marked are mandatory</span>
+</h3>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label for="empl_slno" class="control-label mandatory">Auditor</label>
+                <select class="form-select myselect mandatory-field" id="auditor" asp-for="empl_slno" data-display-name="Auditor"
+                        asp-items="@(new SelectList(ViewBag.empl, "empl_slno", "empl_name"))">
+                    <option value="0" selected>Select..</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="control-label mandatory">Audit System</label>
+
+                <select id="process" title="" data-size="5" data-display-name="Audit System"
+                        data-wrap="true" data-count-selected-text="({0} are chosen)"
+                        data-live-search="true" class="selectpicker show-tick checkbox w-100 mandatory-field"
+                        multiple data-selected-text-format="count">
+                    @if (ViewBag.systemlst != null)
+                    {
+
+                        foreach (var item in ViewBag.systemlst)
+                        {
+                            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                        }
+                    }
+                </select>
+                  <span asp-validation-for="system_desc" class="text-danger"></span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="qualification" class="control-label"></label>
+                <input asp-for="qualification" class="form-control" id="qualification" />
+                @* <span asp-validation-for="qualification" class="text-danger"></span> *@
+            </div>
+            <div class="mb-3">
+                <label asp-for="experience_years" class="control-label"></label>
+                <input asp-for="experience_years" class="form-control" id="experience_years" />
+                @* <span asp-validation-for="experience_years" class="text-danger"></span> *@
+            </div>
+            <div class="mb-3">
+                <label asp-for="trained_dates" class="control-label"></label>
+                <input asp-for="trained_dates" class="form-control" id="trained_dates" />
+                @* <span asp-validation-for="trained_dates" class="text-danger"></span> *@
+            </div>
+            <div class="mb-3">
+                <label asp-for="trained_by" class="control-label"></label>
+                <input asp-for="trained_by" class="form-control" id="trained_by" />
+                @* <span asp-validation-for="trained_by" class="text-danger"></span> *@
+            </div>
+          
+            <div class="hstack gap-3 d-flex justify-content-center">
+                <button class="btn btn-custom btn-submit" id="btncreate" type="submit">Submit</button>
+                <div class="vr"></div>
+                <a href="@Url.Action("Index", "InternalAuditors")" class="btn btn-custom btn-list">List</a>
+            </div>
+            <div class="d-none">
+                <input asp-for="system_desc" id="system_desc" />
+                <input asp-for="del_status" id="del_status" />
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script>
+    $(document).ready(function () {
+    $('#auditor').on('change', function () {
+        checkDuplicateEmpl()
+    });
+
+        function checkDuplicateEmpl() {
+        var empl_slno = $('#auditor').val(); 
+
+        if (empl_slno) {
+            $.ajax({
+                url: '@Url.Action("CheckDuplicateEmpl", "InternalAuditors")', 
+                type: 'GET',
+                data: {
+                    "empl_slno": empl_slno
+                },
+                success: function (response) {
+                    if (response.exists) {
+                        Swal.fire({
+                            icon: 'info',
+                            text: 'This Auditor is already mapped. Try an alternate.'
+                        });
+                        $('#btncreate').prop("disabled", true);  
+                    } else {
+                        $('#btncreate').prop("disabled", false);  
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    var err = xhr.responseText;
+                    Swal.fire({
+                        icon: 'error',
+                        text: err
+                    });
+                }
+            });
+        } else {
+            $('#btncreate').prop("disabled", false);
+        }
+    }
+        function validateForm() {
+            var mandatoryFields = $('.mandatory-field');
+
+            for (var i = 0; i < mandatoryFields.length; i++) {
+                var field = $(mandatoryFields[i]);
+                console.log("mandatoryfields", field);
+                var value = field.val();
+                console.log("Value", value);
+                if (value === "0" || (Array.isArray(value) && value.length === 0)) {
+                    // If a mandatory field is empty, return information about the missing field
+                    var displayName = field.data('display-name');
+                    console.log("Display Name:", field.data('display-name'));
+                    console.log("Field ID:", field.attr('id'));
+                    return { isValid: false, missingField: displayName ? displayName : field.attr('id') };
+                }
+            }
+            // All mandatory fields have values
+            return { isValid: true, missingField: null };
+        }
+        $('#btncreate').on('click', function (e) {
+            e.preventDefault();
+            var validationStatus = validateForm();
+            if (!validationStatus.isValid) {
+            
+                Swal.fire({
+                    title: 'Validation Error',
+                    text: 'Please fill in all mandatory fields. Missing: ' + validationStatus.missingField,
+                    icon: 'error',
+                });
+                return;
+            }
+
+            var proc = $('#process').val();
+            var obj = new Object;
+            obj.system_desc = proc.join(',');
+            obj.empl_slno = $('#auditor :selected').val();
+
+            obj.qualification = $('#qualification').val();
+            obj.experience_years = $('#experience_years').val();
+            obj.trained_dates = $('#trained_dates').val();
+            obj.trained_by = $('#trained_by').val();
+            obj.del_status = $('#del_status').val();
+
+
+            var formdata = new FormData();
+            formdata.append('masterdata', JSON.stringify(obj));
+            $.ajax({
+                url: "@Url.Action("Create")",
+                data: formdata,
+                processData: false,
+                contentType: false,
+                type: 'POST',
+                success: function (response) {
+                    console.log(response);
+                    if (response.status === "success") {
+                        // Hide Bootstrap loading spinner
+                        $('#loadingSpinner').addClass('d-none');
+                        showSubmitAlert();
+                        setTimeout(function () {
+                            window.location.href = "@Url.Action("Index", "InternalAuditors")";
+                        }, 2000);
+                    } else {
+                        // Hide Bootstrap loading spinner
+                        $('#loadingSpinner').addClass('d-none');
+                        swal("Error", "Error in creating document: " + response.message, "error");
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    // Hide Bootstrap loading spinner
+                    $('#loadingSpinner').addClass('d-none');
+                    console.error("Error: " + errorThrown);
+                }
+            });
+        });
+        $("#process").on('change', function () {
+            var selectedItems = $("#process").val() || [];
+
+            // Check if 'select all' is selected, Select all other options and update count text
+            if (selectedItems.includes('select all')) {
+                selectedItems = $('#process option').not('[value="select all"]').map(function () {
+                    return $(this).val();
+                }).get();
+
+                $('#process option[value="select all"]').val('Clear all');
+                $('#process option[text="Select all"]').text('Clear all');
+                $('#process').selectpicker('val', selectedItems);
+                $('#process').attr('data-count-selected-text', "(" + selectedItems.length + " are chosen)");
+            }
+            // Deselect all other options and update count text
+            else if (selectedItems.includes('Clear all')) {
+                $('#process option[value="Clear all"]').val('select all');
+                $('#process option[text="Clear all"]').text('Select all');
+
+                $('#process').selectpicker('val', []);
+                $('#process').attr('data-count-selected-text', "(None are chosen)");
+            }
+            // Update count text for selected items
+            else {
+                $('#process').selectpicker('val', selectedItems);
+                $('#process').attr('data-count-selected-text', "(" + selectedItems.length + " are chosen)");
+            }
+
+        });
+        $('#process').selectpicker(); // Initialize selectpickers
+
+
+    });
+</script>

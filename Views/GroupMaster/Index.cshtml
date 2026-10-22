@@ -1,0 +1,81 @@
+@model IEnumerable<Class_group_master>
+
+@{
+    ViewData["Title"] = "GroupMaster";
+}
+
+<div class="container mt-3">
+    <h3 class="page-title">
+        Group Master
+        <span class="mandatory-note">
+            <a href="@Url.Action("Create","GroupMaster")" class="btn btn-custom btn-add-new">Add New</a>
+        </span>
+    </h3>
+
+    <div id="groups-table"></div>
+</div>
+
+@using Newtonsoft.Json
+<script>
+    chkresponse();
+    function chkresponse() {
+        var msg = '@TempData["msg"]';
+        if (msg == 'Data Submitted') {
+            showSubmitAlert();
+        }
+        else if (msg == 'Data Saved') {
+            showSaveAlert();
+        }
+        else if (msg == 'Data Deleted') {
+            showDeleteAlert();
+        }
+    }
+    (function() {
+        var tableData = @Html.Raw(JsonConvert.SerializeObject(Model));
+
+        var table = new Tabulator("#groups-table", {
+            data: tableData,
+            layout: "fitColumns",
+            reactiveData: false,
+            placeholder: "No groups found",
+            pagination: true,
+            paginationSize: 10,
+            columns: [
+                // Edit icon first column
+                {
+                    title: "",
+                    field: "id",
+                    width: 60,
+                    hozAlign: "center",
+                    headerSort: false,
+                    formatter: function(cell) {
+                        var id = cell.getValue();
+                        var editUrl = '@Url.Action("Edit", "GroupMaster")/' + id;
+                        return '<a href="' + editUrl + '" class="btn btn-link p-0" title="Edit">'
+                            + '<i class="bi bi-pencil-square edit-icon" style="font-size:1.1rem"></i>'
+                            + '</a>';
+                    }
+                },
+                // Hidden id column (for filtering/exports if needed)
+                { title: "Id", field: "id", visible: false },
+                { title: "Group Desc", field: "group_desc", headerFilter: true },
+                // Delete icon last column
+                {
+                    title: "",
+                    field: "id",
+                    width: 60,
+                    hozAlign: "center",
+                    headerSort: false,
+                    formatter: function(cell) {
+                        var id = cell.getValue();
+                        var deleteUrl = '@Url.Action("Delete", "GroupMaster")/' + id;
+                        return '<a href="' + deleteUrl + '" class="btn btn-link text-danger p-0" title="Delete">'
+                            + '<i class="bi bi-trash-fill delete-icon" style="font-size:1.1rem"></i>'
+                            + '</a>';
+                    }
+                }
+            ]
+        });
+
+    })();
+</script>

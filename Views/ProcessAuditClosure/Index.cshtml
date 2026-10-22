@@ -1,0 +1,98 @@
+﻿@model IEnumerable<Class_process_audit_hdr>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3 class="page-title">
+    Process Audit Closure - List
+    <span class="mandatory-note">
+        <a href="@Url.Action("PendingList","ProcessAuditClosure")" class="btn btn-custom btn-list">Pending List</a>
+    </span>
+</h3>
+<div class="row">
+    <div class="col-md-12">
+        <div id="tbldata"></div>
+    </div>
+</div>
+<script>
+    chkresponse();
+    function chkresponse() {
+        var msg = '@TempData["msg"]';
+        if (msg == 'Data Submitted') {
+            showSubmitAlert();
+        }
+        else if (msg == 'Data Saved') {
+            showSaveAlert();
+        }
+        else if (msg == 'Data Deleted') {
+            showDeleteAlert();
+        }        
+    
+    }
+
+    function initializeTabulator(data) {
+        var ttable = new Tabulator("#tbldata", {
+            reactiveData: true,
+            data: data, //set initial table data
+            headerFilter: "input",
+            resizableColumnFit: true,
+            ajaxConfig: "GET",
+            ajaxContentType: "json",
+            placeholder: "No Data Available",
+            
+            layout: "fitColumns",
+            selectable: 1,
+
+            columns: [
+                {
+                    formatter: "html",
+                    title: "",
+                    field: "edit",
+                    hozAlign: "center",
+                    headerSort: false,
+                    width: 40,
+                    cellClick: handleEditClick,
+                    formatter: editIconColumn
+                }, 
+                
+                { title: "Audit date", field: "audit_date" },
+                { title: "Audit by", field: "audit_by" },
+                { title: "Process", field: "proc_name" },
+                { title: "Part No", field: "part_no" },                
+                { title: "NC Observed", field: "obs1" }, 
+                { title: "RCA Analysis", field: "why_why_5w_1h" },
+                { title: "WHY 1", field: "why1" },
+                { title: "WHAT", field: "w_what" },
+                { title: "Implementation", field: "verify_implementation" },
+                { title: "Effectiveness", field: "verify_effectiveness" },
+                { title: "verify slno", field: "closure_slno", visible: false },
+                {
+                    title: "Audit Status",
+                    field: "closure_submitted_status",
+                    formatter: function (cell, formatterParams) {
+                        cell.getElement().style.color = "blue";
+                        return cell.getValue(); // Ensure the original value is displayed
+                    },
+                },                
+            ],
+            empty: "No data found",
+        });
+    }
+    
+    function editIconColumn(cell, formatterParams) {
+        return "<i class='bi bi-pencil-square edit-icon' title='Edit'></i>";
+    }
+
+    function handleEditClick(e, cell) {
+        var id = cell.getRow().getData().closure_slno;
+        window.open('@Url.Action("Edit", "ProcessAuditClosure")?id=' + id, "_self");
+    }
+
+    $(document).ready(function () {
+        tableData = @Json.Serialize(Model);
+        console.log(tableData);
+        initializeTabulator(tableData);
+    });
+
+</script>

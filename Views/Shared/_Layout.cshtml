@@ -1,0 +1,411 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ACPL DQMS - Compliance</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/lib/bootstrap_icons/bootstrap-icons.min.css" rel="stylesheet" />
+    @* <link rel="stylesheet" href="~/ams.styles.css" asp-append-version="true" /> *@
+    <link href="~/lib/Content/plugins/apexcharts/apexcharts.css" rel="stylesheet" />
+    <link href="~/lib/Content/plugins/handsontable/css/handsontable.full.min.css" rel="stylesheet" />
+    <link href="~/lib/Content/plugins/select2/css/select2.min.css" rel="stylesheet" />
+    <link href="~/lib/Content/plugins/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="~/lib/Content/plugins/sweetalert2/sweetalert2.css" rel="stylesheet" />
+    <link href="~/lib/Content/plugins/tabulator6.2/css/tabulator.min.css" rel="stylesheet" />
+    <link href="~/lib/Content/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" />
+    <link href="~/css/buttons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/Content/plugins/moment/moment.js"></script>
+    <script src="~/lib/Content/plugins/apexcharts/apexcharts.min.js"></script>
+    <script src="~/lib/Content/plugins/handsontable/js/handsontable.full.js"></script>
+    <script src="~/lib/Content/plugins/select2/js/select2.min.js"></script>
+    <script src="~/lib/Content/plugins/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/lib/Content/plugins/tabulator6.2/js/tabulator.min.js"></script>
+
+    <link href="~/vendor/bootstrap/css/bootstrap-multiselect.css" media="all" rel="stylesheet">
+    <link href="~/vendor/bootstrap/css/bootstrap-select.min.css" media="all" rel="stylesheet">
+    <script src="~/vendor/bootstrap/css/bootstrap-multiselect.js"></script>
+    <script src="~/vendor/bootstrap/css/bootstrap-select.min.js"></script>
+    <script src="~/lib/Content/plugins/daterangepicker/daterangepicker.js"></script>
+
+    <script src="~/js/idle-timer.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</head>
+<body>
+    @inject acpl_startup.Services.UserAccessService UserAccessService
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+    @{
+        // Retrieve UserId from session (assuming it's stored as a string in session)
+        string userIdString = HttpContextAccessor.HttpContext.Session.GetString("UserSlno");
+        int userId = 0;
+
+        if (!string.IsNullOrEmpty(userIdString))
+        {
+            userId = int.Parse(userIdString); // Parse the UserId from string to int
+        }
+
+        // Get the user module access permissions if userId is valid
+        List<CommonClassLibrary.Class_UserScreenAccess> userModuleAccessList = null;
+        if (userId > 0)
+        {
+            userModuleAccessList = await UserAccessService.GetUserModuleAccessAsync(userId);
+        }
+    }
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/logo.png" />&nbsp;<span style="font-size: 1.5em;font-weight:800">Compliance</span>&nbsp;
+
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Masters
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="GroupMaster" asp-action="Index">Group Master</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="LegalActMaster" asp-action="Index">Legal act master</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="FactoryActMaster" asp-action="Index">Factory act master</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown d-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Transactions
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
+                                @* <li><a class="dropdown-item" asp-area="" asp-controller="PrcValidation" asp-action="Index">Process Qualification</a></li> *@
+                                <li><a class="dropdown-item" asp-area="" asp-controller="TestPlan" asp-action="Index">Test Plan Validation</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="TestPlanRevaldn" asp-action="Index">Test Plan Revalidation</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown d-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Pending Actions
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="TestPlan" asp-action="PendingVerification">Pending Plan Verification</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="TestPlan" asp-action="PendingApproval">Pending Plan Approval</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="TestPlan" asp-action="PendingActions">Pending Qualification List</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Validation" asp-action="PendingCondVerification">Pending Conditional Verification</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Validation" asp-action="PendingCondApproval">Pending Conditional Approval</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Validation" asp-action="PendingFinalRelease">Pending FinalRelease</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Validation" asp-action="PendingFinalRelVerification">Pending Final Release Verification</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Validation" asp-action="PendingFinalRelApproval">Pending Final Release Approval</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown d-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Reports
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="ValidationSummary" asp-action="Index">Validation Summary</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-house-door-fill"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                @* <li><a class="dropdown-item" asp-area="" asp-controller="MyPendings" asp-action="Index"><i class="bi bi-exclamation-diamond-fill"></i> My Pendings</a></li> *@
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer"></i> Module Dashboard</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item nav-link" href="@Context.Session.GetString("MainHome")"><i class="bi bi-house"></i> Main Home</a></li>
+                                <li><a class="dropdown-item nav-link" href="@Context.Session.GetString("MainDashboard")"><i class="bi bi-columns-gap"></i> Main Dashboard</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-grid-3x3-gap-fill"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="width:600px;">
+                                @if (userModuleAccessList.Any(u => u.short_code == "DMS" && u.can_read))
+                                {
+                                    var dmsAccess = userModuleAccessList.First(u => u.short_code == "DMS");
+                                    <li><a class="dropdown-item" href="@Url.Action("@dmsAccess.url_path")">@dmsAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "MRM" && u.can_read))
+                                {
+                                    var mrmAccess = userModuleAccessList.First(u => u.short_code == "MRM");
+                                    <li><a class="dropdown-item" href="@mrmAccess.url_path">@mrmAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "AMS" && u.can_read))
+                                {
+                                    var amsAccess = userModuleAccessList.First(u => u.short_code == "AMS");
+                                    <li><a class="dropdown-item" href="@amsAccess.url_path">@amsAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "RISK" && u.can_read))
+                                {
+                                    var riskAccess = userModuleAccessList.First(u => u.short_code == "RISK");
+                                    <li><a class="dropdown-item" href="@riskAccess.url_path">@riskAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "COMP" && u.can_read))
+                                {
+                                    var compAccess = userModuleAccessList.First(u => u.short_code == "COMP");
+                                    <li><a class="dropdown-item" href="@compAccess.url_path">@compAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "CIA" && u.can_read))
+                                {
+                                    var ciaAccess = userModuleAccessList.First(u => u.short_code == "CIA");
+                                    <li><a class="dropdown-item" href="@ciaAccess.url_path">@ciaAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "CAL" && u.can_read))
+                                {
+                                    var calAccess = userModuleAccessList.First(u => u.short_code == "CAL");
+                                    <li><a class="dropdown-item" href="@calAccess.url_path">@calAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "MSA" && u.can_read))
+                                {
+                                    var msaAccess = userModuleAccessList.First(u => u.short_code == "MSA");
+                                    <li><a class="dropdown-item" href="@msaAccess.url_path">@msaAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "SPC" && u.can_read))
+                                {
+                                    var spcAccess = userModuleAccessList.First(u => u.short_code == "SPC");
+                                    <li><a class="dropdown-item" href="@spcAccess.url_path">@spcAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "PFD" && u.can_read))
+                                {
+                                    var pfdAccess = userModuleAccessList.First(u => u.short_code == "PFD");
+                                    <li><a class="dropdown-item" href="@pfdAccess.url_path">@pfdAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "CCA" && u.can_read))
+                                {
+                                    var ccaAccess = userModuleAccessList.First(u => u.short_code == "CCA");
+                                    <li><a class="dropdown-item" href="@ccaAccess.url_path">@ccaAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "IQC" && u.can_read))
+                                {
+                                    var iqcAccess = userModuleAccessList.First(u => u.short_code == "IQC");
+                                    <li><a class="dropdown-item" href="@iqcAccess.url_path">@iqcAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "LAI" && u.can_read))
+                                {
+                                    var laiAccess = userModuleAccessList.First(u => u.short_code == "LAI");
+                                    <li><a class="dropdown-item" href="@laiAccess.url_path">@laiAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "FAI" && u.can_read))
+                                {
+                                    var faiAccess = userModuleAccessList.First(u => u.short_code == "FAI");
+                                    <li><a class="dropdown-item" href="@faiAccess.url_path">@faiAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "ABN" && u.can_read))
+                                {
+                                    var abnAccess = userModuleAccessList.First(u => u.short_code == "ABN");
+                                    <li><a class="dropdown-item" href="@abnAccess.url_path">@abnAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "COPQ" && u.can_read))
+                                {
+                                    var copqAccess = userModuleAccessList.First(u => u.short_code == "COPQ");
+                                    <li><a class="dropdown-item" href="@copqAccess.url_path">@copqAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "APQP" && u.can_read))
+                                {
+                                    var apqpAccess = userModuleAccessList.First(u => u.short_code == "APQP");
+                                    <li><a class="dropdown-item" href="@apqpAccess.url_path">@apqpAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "ECN" && u.can_read))
+                                {
+                                    var ecnAccess = userModuleAccessList.First(u => u.short_code == "ECN");
+                                    <li><a class="dropdown-item" href="@ecnAccess.url_path">@ecnAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "PRVALID" && u.can_read))
+                                {
+                                    var prvalidAccess = userModuleAccessList.First(u => u.short_code == "PRVALID");
+                                    <li><a class="dropdown-item" href="@prvalidAccess.url_path">@prvalidAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "SUPEVAL" && u.can_read))
+                                {
+                                    var supevalAccess = userModuleAccessList.First(u => u.short_code == "SUPEVAL");
+                                    <li><a class="dropdown-item" href="@supevalAccess.url_path">@supevalAccess.screen_name</a></li>
+                                }
+                                @if (userModuleAccessList.Any(u => u.short_code == "TRAING" && u.can_read))
+                                {
+                                    var traingAccess = userModuleAccessList.First(u => u.short_code == "TRAING");
+                                    <li><a class="dropdown-item" href="@traingAccess.url_path">@traingAccess.screen_name</a></li>
+                                }
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i> @Context.Session.GetString("_Name")
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href='@Context.Session.GetString("ChangePasswordUrl")'>Change Password</a></li>
+                                <li><a class="dropdown-item" href='@Context.Session.GetString("LogoutUrl")'>Sign Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    @* Timeout session code *@
+    <div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="basicModal"
+         aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        <label id="lblheader">
+                        </label>
+                    </h4>
+                    <br />
+                </div>
+                <div class="modal-body">
+                    <div id="divlist" style="width: 550px; height: 250px; overflow: scroll;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.right-side -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Session Expiration Warning</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You've been inactive for a while. For your security, we'll log you out automatically. Click "Stay Online" to continue your session. </p>
+                    <p>Your session will expire in <span class="bold" id="sessionSecondsRemaining">120</span> seconds.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="extendSession" type="button" class="btn btn-default btn-success" data-dismiss="modal">Stay Online</button>
+                    <button id="logoutSession" type="button" class="btn btn-default" data-dismiss="modal">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="mdlLoggedOut" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">You have been logged out</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Your session has expired.</p>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-top footer text-muted d-none">
+        <div class="container">
+            &copy; 2024 - DQMS
+        </div>
+    </footer>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+<script type="text/javascript">
+    //var timeOutMins = HttpContextAccessor.HttpContext.Session.GetString("TimeOutMins");
+    var timeOutMins = 30;
+    // convert minutes to milliseconds
+    var timeOut = timeOutMins * 60000;
+
+    (function ($) {
+        var
+            session = {
+                //Logout Settings
+                inactiveTimeout: timeOut,     //(ms) The time until we display a warning message  1 minute = 60000 ms 30min
+                warningTimeout: timeOut,      //(ms) The time until we log them out 5min
+                minWarning: timeOut,           //(ms) If they come back to page (on mobile), The minumum amount, before we just log them out
+                warningStart: null,         //Date time the warning was started
+                warningTimer: null,         //Timer running every second to countdown to logout
+                logout: function () {       //Logout function once warningTimeout has expired
+                    window.location = settings.autologout.logouturl;
+                    $("#mdlLoggedOut").modal("show");
+                    //window.location.href = '@Url.Action("Index", "Logout")';
+                },
+                //Keepalive Settings
+                keepaliveTimer: null,
+                keepaliveUrl: "",
+                keepaliveInterval: timeOut,     //(ms) the interval to call said url
+                keepAlive: function () {
+                    $.ajax({ url: session.keepaliveUrl });
+                }
+            }
+            ;
+        $(document).on("idle.idleTimer", function (event, elem, obj) {
+            //Get time when user was last active
+            var
+                diff = (+new Date()) - obj.lastActive - obj.timeout,
+                warning = (+new Date()) - diff
+                ;
+
+            //On mobile js is paused, so see if this was triggered while we were sleeping
+            if (diff >= session.warningTimeout || warning <= session.minWarning) {
+                $("#mdlLoggedOut").modal("show");
+            } else {
+                //Show dialog, and note the time
+                $('#sessionSecondsRemaining').html(Math.round((session.warningTimeout - diff) / 1000));
+                $("#myModal").modal("show");
+                session.warningStart = (+new Date()) - diff;
+                //Update counter downer every second
+                session.warningTimer = setInterval(function () {
+                    var remaining = Math.round((session.warningTimeout / 1000) - (((+new Date()) - session.warningStart) / 1000));
+                    if (remaining >= 0) {
+                        $('#sessionSecondsRemaining').html(remaining);
+                    } else {
+                        //window.location.href = '@Url.Action("Index", "Logout")';
+                    }
+                }, 1000)
+            }
+        });
+        // create a timer to keep server session alive, independent of idle timer
+        session.keepaliveTimer = setInterval(function () {
+            session.keepAlive();
+        }, session.keepaliveInterval);
+        //User clicked ok to extend session
+        $("#extendSession").click(function () {
+            if ($('#sessionSecondsRemaining').val() == 0) {
+                window.location.href = '@Url.Action("Index", "Home")';
+            }
+            else {
+                clearTimeout(session.warningTimer);
+            }
+
+        });
+        //User clicked logout
+        $("#logoutSession").click(function () {
+
+            window.location.href = '@Context.Session.GetString("LogoutUrl")';
+        });
+        //Set up the timer, if inactive for 10 seconds log them out
+        $(document).idleTimer(session.inactiveTimeout);
+    })(jQuery);
+</script>

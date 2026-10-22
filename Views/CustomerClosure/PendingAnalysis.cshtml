@@ -1,0 +1,108 @@
+﻿@model IEnumerable<Class_customer_audit_hdr>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3 class="page-title">
+    Pending List
+    <span class="mandatory-note">
+        <a href="@Url.Action("Index", "CustomerClosure")" class="btn btn-custom btn-list">List</a>
+    </span>
+</h3>
+<div class="row">
+    <div class="col-md-12">
+        <div id="tbldata"></div>
+    </div>
+</div>
+<script>
+    chkresponse();
+    function chkresponse() {
+        var msg = '@TempData["msg"]';
+        if (msg == 'Data Submitted') {
+            showSubmitAlert();
+        }
+        else if (msg == 'Data Saved') {
+            showSaveAlert();
+        }
+        else if (msg == 'Data Deleted') {
+            showDeleteAlert();
+        }        
+    }
+
+    function initializeTabulator(data) {
+        var ttable = new Tabulator("#tbldata", {
+            reactiveData: true,
+            data: data, //set initial table data
+            headerFilter: "input",
+            resizableColumnFit: true,
+            ajaxConfig: "GET",
+            ajaxContentType: "json",
+            placeholder: "No Data Available",
+            
+            layout: "fitColumns",
+            selectable: 1,
+
+            columns: [
+                {
+                    formatter: "html",
+                    title: "",
+                    field: "edit",
+                    hozAlign: "center",
+                    headerSort: false,
+                    width: 40,
+                    cellClick: handleEditClick,
+                    formatter: editIconColumn
+                },
+                { title: "Audit Number", field: "audit_numer", visible: false },
+                { title: "Audit date", field: "audit_date" },
+                { title: "Customer Code", field: "customercode" },
+                { title: "Customer Name", field: "customername" },
+                { title: "Customer Audit Number", field: "cust_audit_number" },
+                { title: "Part Number Rev Number", field: "cust_partno_revno" },
+                { title: "Auditor", field: "auditor" },
+                { title: "Auditee", field: "auditee_name" },
+                { title: "NC Observed", field: "nc_observation" },
+                { title: "Why 1", field: "why1" },                
+                { title: "ob slno",field:"obs_slno",visible:false},
+                { title: "Plant Slno", field: "plant_slno",visible:false },
+                {
+                title: "Next Action",
+                field: "next_action",
+                formatter: function (cell, formatterParams) {
+                    cell.getElement().style.color = "blue";
+                    return cell.getValue(); // Ensure the original value is displayed
+                },
+            },
+            ],
+            empty: "No data found",
+        });
+    }
+
+
+    function statusColumn(cell, formatterParams) {
+        if (cell.getRow().getData().audit_status === "Open") {
+            return "<i class='bi bi-circle-fill text-warning' title='Open' style='font-size: 1.15rem;'></i>";
+        }
+        else if (cell.getRow().getData().audit_status === "Closed") {
+            return "<i class='bi bi-x-circle-fill text-success' title='Closed' style='font-size: 1.15rem;'></i>";
+        }
+        else {
+            return "";
+        }
+    }
+
+    function editIconColumn(cell, formatterParams) {
+        return "<i class='bi bi-pencil-square edit-icon' title='Edit'></i>";
+    }
+    function handleEditClick(e, cell) {
+        var id = cell.getRow().getData().obs_slno;
+        window.open('@Url.Action("Create", "CustomerClosure")?id=' + id, "_self");
+    }
+     $(document).ready(function () {
+        tableData = @Json.Serialize(Model);
+        console.log();
+        initializeTabulator(tableData);
+    });
+    
+</script>

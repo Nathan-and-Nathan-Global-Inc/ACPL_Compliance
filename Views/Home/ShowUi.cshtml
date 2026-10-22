@@ -1,0 +1,508 @@
+﻿@{
+    ViewData["Title"] = "UI Template";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4 class="fw-bold">Typography</h4>
+<p class="mx-3">All fonts are in Roboto-Normal</p>
+<hr />
+<!-- Navigation bar-->
+<h4 class="fw-bold">Navigation Bar</h4>
+<p class="mx-3">As defined in the top of this page</p>
+
+<hr />
+<!-- Form Title -->
+<h4 class="fw-bold">Form Title</h4>
+<div class="border border-2 border-info mb-2">
+    <p class="fst-italic bg-primary text-white">List</p>
+    <h3 class="page-title">
+        Page Name - List
+        <span class="mandatory-note">
+            <a href="#" class="btn btn-custom btn-add-new">Add New</a>
+        </span>
+    </h3>
+</div>
+<div class="border border-2 border-info mb-2">
+    <p class="fst-italic bg-primary text-white">Create Page</p>
+    <h3 class="page-title">
+        Page Name - Add New
+        <span class="mandatory-note">* marked are mandatory</span>
+    </h3>
+</div>
+<div class="border border-2 border-info mb-2">
+    <p class="fst-italic bg-primary text-white">Edit Page</p>
+    <h3 class="page-title">
+        Page Name - Edit
+        <span class="mandatory-note">* marked are mandatory</span>
+    </h3>
+
+</div>
+<div class="border border-2 border-info mb-2">
+    <p class="fst-italic bg-primary text-white">Delete Page</p>
+</div>
+
+<h4 class="fw-bold">Buttons</h4>
+@*<button class="btn-custom btn-list">
+        <img src="/button-images/list.svg" alt="List Icon" style="width: 1rem; height: 1rem;">
+        List
+    </button>*@
+<div class="container mt-5">
+    <div class="button-container">
+        <button class="btn btn-custom btn-list">List</button>
+        <button class="btn btn-custom btn-add-new">Add New</button>
+        <button class="btn btn-custom btn-save">Save</button>
+        <button class="btn btn-custom btn-submit">Submit</button>
+        <button class="btn btn-custom btn-approve">Approve</button>
+        <button class="btn btn-custom btn-reject">Reject</button>
+        <button class="btn btn-custom btn-download-excel">To Excel</button>
+        <button class="btn btn-custom btn-download-pdf">To PDF</button>
+        <button class="btn btn-custom btn-calculate">Calculate</button>
+        <button class="btn btn-custom btn-load-data">Load Data</button>
+        <button class="btn btn-custom btn-delete">Delete</button>
+    </div>
+</div>
+<hr />
+<h4 class="fw-bold">Form Elements</h4>
+<div class="row">
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="date" class="form-label mandatory">Input Mandatory</label>
+            <input type="text" class="form-control" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="date" class="form-label">Input Normal</label>
+            <input type="text" class="form-control" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="date" class="form-label">Numbers</label>
+            <input type="number" class="form-control" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <label for="date" class="form-label">Single-Select Dropdown</label>
+        <select class="form-select myselect">
+            <option value="1" selected>Select...</option>
+            <option value="1">Option1</option>
+            <option value="2">Option2</option>
+            <option value="3">Option3</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="date" class="form-label">Multi-Select Dropdown</label>
+        @* <select class="form-select myselect" name="selected[]" multiple="multiple">
+                <option value="1">Option1</option>
+                <option value="2">Option2</option>
+                <option value="3">Option3</option>
+            </select> *@
+        <select id="informed_to" title="Choose.." data-size="5"
+                data-wrap="true" data-count-selected-text="({0} are chosen)"
+                data-live-search="true" class="selectpicker show-tick checkbox w-100"
+                multiple data-selected-text-format="count">
+            <option value="1">Option1</option>
+            <option value="2">Option2</option>
+            <option value="3">Option3</option>
+            @* @if (ViewBag.infslno != null)
+                {
+                    foreach (var item in ViewBag.infslno)
+                    {
+                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                    }
+                } *@
+        </select>
+    </div>
+    <div class="col-md-3">
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
+            <label class="form-check-label" for="flexSwitchCheckChecked">On-Off Switch</label>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="date" class="form-label">Date Picker</label>
+            <div class="input-group">
+                <input type="date" id="testdate" class="form-control">
+                <span class="input-group-btn">
+                    <button id="btncleardt" class="btn btn-sm btn-secondary">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </span>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label class="form-label">Date format</label>
+            <input type="date" class="form-control" id="currdt" disabled readonly />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="time" class="form-label">Time Picker</label>
+            <input type="time" class="form-control" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="text" class="form-label">Month & Year Picker</label>
+            <div class="input-group">
+                <input type="month" id="monthYearPicker" class="form-control">
+                <span class="input-group-btn">
+                    <button id="clearMonthYearPicker" class="btn btn-sm btn-secondary">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="col-md-3">
+        <div class="mb-3">
+            <label for="date" class="form-label">Disabled Input</label>
+            <input type="text" class="form-control" value="Disabled Value" disabled readonly />
+        </div>
+    </div>
+</div>
+
+<hr />
+<p class="fst-italic fw-bold">Alert Messages</p>
+<div class="button-container">
+    <button class="btn btn-custom btn-save" id="btnsave">Message on Save Clicked</button>
+    <button class="btn btn-custom btn-submit" id="btnsubmit">Message on Submit Clicked</button>
+    <button class="btn btn-custom btn-delete" id="btndel">Message on Delete Clicked</button>
+    <button class="btn btn-custom btn-approve" id="btnapprove">Message on Approve Clicked</button>
+    <button class="btn btn-custom btn-reject" id="btnreject">Message on Reject Clicked</button>
+    <button class="btn btn-secondary" id="btnerror">Message on Error</button>
+</div>
+<hr />
+<!-- display the tabulator records-->
+<h4 class="fw-bold">List of Records</h4>
+<div id="example-table"></div>
+
+<hr />
+<h4 class="fw-bold">HandsonTable</h4>
+<div id="hot"></div>
+
+<h4 class="fw-bold">Graphs</h4>
+<div class="row">
+    <div class="col">
+        <div id="chartline"></div>
+    </div>
+    <div class="col">
+        <div id="chartcolumn"></div>
+    </div>
+</div>
+
+<h4>Sample Form</h4>
+<div class="row">
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label for="empl.roll" class="form-label mandatory">Empl.Roll</label>
+            <input type="text" class="form-control" />
+            <span class="text-danger">Data missing</span>
+        </div>
+        <div class="mb-3">
+            <label for="emplname" class="form-label mandatory">Empl.Name</label>
+            <input type="text" class="form-control" />
+            <span class="text-danger">Data missing<span class="small">(will be displayed when left blank)</span></span>
+        </div>
+        <div class="mb-3">
+            <label for="dept" class="form-label">Department</label>
+            <select class="form-select myselect">
+                <option value="1" selected>Select...</option>
+                <option value="1">Dept1</option>
+                <option value="2">Dept2</option>
+                <option value="3">Dept3</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label for="dept" class="form-label">Designation</label>
+            <select class="form-select myselect">
+                <option value="1" selected>Select...</option>
+                <option value="1">Dept1</option>
+                <option value="2">Dept2</option>
+                <option value="3">Dept3</option>
+            </select>
+        </div>
+    </div>
+</div>
+<hr />
+<h4>Page Processing</h4>
+<div class="mb-3">
+    <button class="btn btn-primary" id="btnproc">Click to Show Processing</button>
+    <div id="spinner-container" class="d-none">
+        <div class="spinner-border custom-spinner" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+<hr />
+<h4>Session Timeout Modal</h4>
+<button class="btn btn-primary" id="btnTimer">Show popup</button>
+@* Related code is added in te layout page *@
+
+<script>
+    // code for tabulator
+    var table = new Tabulator("#example-table", {
+        
+        layout: "fitColumns",
+        columns: [
+            {
+                formatter: "html",
+                title: "Edit",
+                field: "edit",
+                hozAlign: "center",
+                headerSort: false,
+                width: 40,
+                cellClick: function (e, cell)
+                {
+                    alert("Edit: " + cell.getRow().getData().name);
+                },
+                formatter: function ()
+                {
+                    return "<i class='bi bi-pencil-square'></i>";
+                }
+            },
+            { title: "Empl.Roll", field: "roll" },
+            { title: "Name", field: "name", headerFilter: "input" },
+            { title: "Progress", field: "progress", sorter: "number" },
+            { title: "Gender", field: "gender" },
+            { title: "Rating", field: "rating" },
+            { title: "Favourite Color", field: "col" },
+            { title: "Date Of Birth", field: "dob", hozAlign: "center" },
+            {
+                formatter: "html",
+                title: "Delete",
+                field: "delete",
+                hozAlign: "center",
+                headerSort: false,
+                width:50,
+                cellClick: function (e, cell)
+                {
+                    alert("Delete: " + cell.getRow().getData().name);
+                },
+                formatter: function ()
+                {
+                    return "<i class='bi bi-trash'></i>";
+                }
+            }
+        ],
+        data: [
+            { roll: "001", name: "John Doe", progress: 85, gender: "Male", rating: 4, col: "Blue", dob: "1990-01-01" },
+            { roll: "002", name: "Jane Smith", progress: 92, gender: "Female", rating: 5, col: "Green", dob: "1992-05-23" },
+            { roll: "003", name: "Emily Johnson", progress: 78, gender: "Female", rating: 3, col: "Red", dob: "1988-11-15" },
+            { roll: "004", name: "Michael Brown", progress: 65, gender: "Male", rating: 2, col: "Yellow", dob: "1995-07-07" },
+            { roll: "005", name: "Sarah Davis", progress: 90, gender: "Female", rating: 4, col: "Purple", dob: "1993-03-18" },
+            { roll: "006", name: "David Wilson", progress: 75, gender: "Male", rating: 3, col: "Orange", dob: "1989-09-30" },
+            { roll: "007", name: "Laura Martinez", progress: 88, gender: "Female", rating: 5, col: "Pink", dob: "1991-12-12" },
+            { roll: "008", name: "Robert Taylor", progress: 82, gender: "Male", rating: 4, col: "Cyan", dob: "1987-02-10" },
+            { roll: "009", name: "Jessica Lee", progress: 95, gender: "Female", rating: 5, col: "Magenta", dob: "1994-08-25" },
+            { roll: "010", name: "James Harris", progress: 70, gender: "Male", rating: 3, col: "Lime", dob: "1990-06-14" }
+        ]
+    });
+
+    $('#btnsave').on('click', function ()
+    {
+        showSaveAlert();
+    });
+
+    $('#btnsubmit').on('click', function ()
+    {
+        showSubmitAlert();
+    });
+
+    $('#btndel').on('click', function ()
+    {
+        showDeleteAlert();
+    });
+
+    $('#btnapprove').on('click', function ()
+    {
+        showApproveAlert();
+    });
+    $('#btnreject').on('click', function ()
+    {
+        showRejectAlert();
+    });
+
+    $('#btnerror').on('click', function ()
+    {
+        showErrorAlert("E.g.Data length short");
+    });
+
+    $('#btnTimer').on('click', function ()
+    {
+        $("#myModal").modal("show");
+    });
+
+    /*code for handsontable*/
+
+    var $container1 = $("#hot");
+    $container1.handsontable({
+        startRows: 1, //number of rows to be displayed at initialization
+        startCols: 6, // number of columns to be displayed
+        rowHeaders: false, //show row headers
+        // colHeaders: true, //show column headers
+        // width: 1500,
+        height: 150,
+        colWidths: [200, 150, 150],
+        colHeaders: ["Document Types", "Applicable", "Approve Reqd."], //names of columnheaders
+        columns: [
+            { type: 'text', data: 'doc_type_desc', editor: 'false' },
+            { type: 'dropdown', data: 'doc_applicable', source: ['Yes', 'No'] },
+            { type: 'dropdown', data: 'verify_reqd', source: ['Yes', 'No'] }
+        ],
+
+        minSpareRows: 1, //minimum last row
+        minSpareCols: 0,
+        autoWrapRow: true,
+        contextMenu: false,
+        outsideClickDeselects: false, //deselect if clicked outside
+        removeRowPlugin: true //remove row other than from context menu
+    });
+
+</script>
+<script>
+
+    var options = {
+        series: [{
+            name: "Desktops",
+            data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+        }],
+        chart: {
+            height: 350,
+            type: 'line',
+            zoom: {
+                enabled: false
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'straight'
+        },
+        title: {
+            text: 'Product Trends by Month',
+            align: 'left'
+        },
+        grid: {
+            row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+            },
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chartline"), options);
+    chart.render();
+
+
+</script>
+<script>
+
+    var options = {
+        series: [{
+            name: 'Net Profit',
+            data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+        }, {
+            name: 'Revenue',
+            data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+        }, {
+            name: 'Free Cash Flow',
+            data: [35, 41, 36, 26, 45, 48, 52, 53, 41]
+        }],
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        },
+        yaxis: {
+            title: {
+                text: '$ (thousands)'
+            }
+        },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+                formatter: function (val)
+                {
+                    return "$ " + val + " thousands"
+                }
+            }
+        }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chartcolumn"), options);
+    chart.render();
+
+
+</script>
+<script>
+    $('.myselect').select2({
+        theme: "bootstrap-5",
+        width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+        placeholder: $(this).data('placeholder'),
+    });
+
+    // add current date using moments to currdt field
+    var currentDate = moment().format('DD-MM-YYYY');
+    $('#currdt').val(currentDate);
+
+    // ajax code to show processing
+    $('#btnproc').on('click', function ()
+    {
+        // use showspinner function in start of ajax calls
+        showSpinner();
+
+
+    });
+
+
+</script>
+
+<script>
+    
+    $('#btncleardt').on('click', function ()
+    {
+        $('#testdate').val('');
+    });
+
+    $('#clearMonthYearPicker').on('click', function ()
+    {
+        $('#monthYearPicker').val('');
+    });
+
+</script>
+
+
+

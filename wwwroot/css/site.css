@@ -1,0 +1,216 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: #f0f7f0;
+}
+
+
+@font-face {
+    font-family: 'PublicSans';
+    src: url('../publicsans_fonts/PublicSans-SemiBold.woff2') format('woff2'), url('@Url.Content("../publicsans_fonts/PublicSans-SemiBold.woff")') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+html, body {
+    font-family: 'PublicSans','Calibri', sans-serif;
+    font-size: 14px;
+    height: 100%;
+    color: #134BA5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'PublicSans','Calibri', sans-serif;
+}
+
+.logo {
+    font-family: 'PublicSans','Calibri', sans-serif;
+}
+
+.navbar {
+    /*background-color: #145FB0;*/
+    padding: 0.35rem 1rem; /* Reduce the padding for the navbar */
+}
+
+.navbar-nav .nav-link {
+    color: #006536;
+}
+
+.navbar-brand,
+.navbar-toggler-icon {
+    color: #006536;
+}
+
+    .navbar-brand .brand-text {
+        font-size: 1.5em;
+        font-family: 'PublicSans-Medium', 'Calibri', sans-serif;
+        color: #006536; /* Ensuring the color matches the navbar text */
+    }
+
+    .navbar-brand img {
+        height: 40px; /* Adjust the height of the logo */
+        margin-right: 0.5rem; /* Adjust the space to the right of the logo */
+    }
+
+.navbar .dropdown-menu {
+    right: auto;
+    left: 0;
+    background-color: #edf7f1;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: #006536;
+    color: white;
+}
+
+.navbar-nav .dropdown-item:hover {
+    background-color: #006536;
+    color: white;
+}
+
+
+.navbar-brand {
+    display: flex;
+    align-items: center; /* Vertically center the logo and text */
+    padding: 0; /* Remove default padding */
+}
+
+.mandatory::after {
+    content: " *";
+    color: red;
+}
+
+.navbar-brand:hover {
+    color: #006536;
+    cursor: pointer;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler-icon {
+    /*background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");*/
+}
+/* styles for page title - used for Created, Edit, Delete*/
+.page-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #dee2e6; /* Adjust the color as needed */
+    padding-bottom: 10px; /* Optional: adds space between the border and content */
+    color: #006536;
+    font-weight: bold;
+    font-size:1.7rem;
+}
+
+    .page-title .mandatory-note {
+        font-size: 0.6em;
+        color: #6c757d; /* Bootstrap's text-muted color */
+    }
+
+/*style for spinner container*/
+#spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* Adjust this value as needed to ensure it appears above other elements */
+}
+
+.custom-spinner {
+    width: 4rem; /* Adjust the size as needed */
+    height: 4rem; /* Adjust the size as needed */
+    color: #006536;
+    border-width: 0.60rem; /* Adjust the thickness as needed */
+}
+
+/*style for select2*/
+.modal-open .select2-dropdown {
+    z-index: 10060;
+}
+
+.modal-open .select2-close-mask {
+    z-index: 10055;
+}
+
+.select2-results__option[aria-selected=true] .wrap:before {
+    content: "\f14a";
+}
+
+.select2-results__option .wrap:before {
+    font-family: fontAwesome;
+    color: #999;
+    content: "\f096";
+    width: 25px;
+    height: 20px;
+    padding-right: 10px;
+}
+
+select2-selection--multiple {
+    overflow-y: auto;
+    font-family: 'PublicSans-Regular','Calibri', sans-serif;
+}
+
+.select2-multiple2 {
+    font-family: 'PublicSans-Regular','Calibri', sans-serif;
+    height: 35px !important;
+}
+
+.select2-container {
+    height: 45px;
+}
+
+.select2-selection__rendered {
+    line-height: 31px !important;
+}
+
+.select2-container .select2-selection--single {
+    height: 35px !important;
+}
+
+.select2-selection__arrow {
+    height: 34px !important;
+}
+
+.form-select {
+    height: 35px !important;
+    line-height: 22px !important;
+}
+
+.hidden {
+    display: none;
+}
+
+.para-title {
+    color: #006536;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    margin-top:10px;
+}
+
+.header{
+    background-color:#fff;
+}
+
+.container {
+    background-color: #fff;
+}
+
+

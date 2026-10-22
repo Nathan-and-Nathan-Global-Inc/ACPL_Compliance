@@ -1,0 +1,443 @@
+﻿@model Class_supplier_audit_plan_old
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h3 class="page-title">
+    Supplier Audit Plan - Edit
+    <span class="mandatory-note">* marked are mandatory</span>
+</h3>
+<form asp-action="Edit">
+    <div class="row border-bottom border-0 mt-2">
+        <div class="col-md-2 col-sm-12">
+            <div class="mb-3">
+                <label asp-for="plan_year" class="control-label mandatory"></label>
+                <input asp-for="plan_year" class="form-control mandatory-field" data-display-name="Plan Year"  id="plan_year" type="numeric" readonly/>
+                <span asp-validation-for="plan_year" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="hot"></div>
+        </div>
+        <div class="col-md-3 col-sm-12 d-none">
+            <div class="mb-3">
+                <input asp-for="plant_slno" class="form-control" id="txtPlantslno" />
+            </div>
+        </div>
+    </div>
+    <div class="hstack gap-3 d-flex justify-content-center">
+        <button class="btn btn-custom btn-save" id="btnsave" type="submit">Save</button>
+        <button class="btn btn-custom btn-submit" id="btnsubmit" type="submit">Submit</button>
+        <a href="@Url.Action("Index", "SupplierAuditPlan_OLD")" class="btn btn-custom btn-list">List</a>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        
+        $("#plan_year").on('change', function () {
+            GetData();
+        });
+    var plantslno = $("#txtPlantslno").val();
+                
+        GetData();
+
+         var suppliers = [];
+
+             GetSupHot();
+
+                function GetSupHot() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: '@Url.Action("GetSupHot")',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    // Populate the suppliers array with the AJAX response
+                    data.forEach(item => suppliers.push(item["supp_name"]));
+                    resolve();
+                },
+                error: function (jqxhr, status, error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+     function validateForm() {
+        var mandatoryFields = $('.mandatory-field');
+
+        for (var i = 0; i < mandatoryFields.length; i++) {
+            var field = $(mandatoryFields[i]);
+            console.log("mandatoryfields", field);
+            var value = field.val();
+            console.log("Value", value);
+            if (!value || (value === null && value.length === 0)) {
+                // If a mandatory field is empty, return information about the missing field
+                var displayName = field.data('display-name');
+                console.log("Display Name:", field.data('display-name'));
+                console.log("Field ID:", field.attr('id'));
+                return { isValid: false, missingField: displayName ? displayName : field.attr('id') };
+            }
+        }
+        // All mandatory fields have values
+        return { isValid: true, missingField: null };
+    }
+
+        var $container1 = $("#hot");
+        const htstd = $container1.handsontable({
+            startRows: 1,
+            startCols: 5,
+            rowHeaders: true,
+            colHeaders: ["Supplier", "Jan-Mar", "Apr-Jun", "Jul-Sep", "Oct-Dec", "Plan SLNO", "Plant SLNO"],
+            columns: [
+                {
+                    type: "dropdown",
+                    source: suppliers, // Populate dropdown with supplier names
+                    strict: false
+                },
+                { type: "dropdown", source: ["Yes", "No"] },
+                { type: "dropdown", source: ["Yes", "No"] },
+                { type: "dropdown", source: ["Yes", "No"] },
+                { type: "dropdown", source: ["Yes", "No"] },
+                { type: "text", readOnly: true }, // Plan SLNO
+                { type: "text", readOnly: true }  // Plant SLNO
+            ],
+            colWidths: [500, 100, 100, 100, 100, 0.1, 0.1],
+            height: 350,
+            minSpareRows: 1,
+            afterChange: function (changes, source) {
+            if (source === 'edit' || source === 'Autocomplete') {
+                const hotInstance = this;
+                const data = hotInstance.getSourceData();
+
+                // Check for duplicate suppliers
+                const supplierColumnIndex = 0; // Supplier column index
+                let uniqueSuppliers = new Set();
+                let duplicateExists = false;
+
+                for (let i = 0; i < data.length; i++) {
+                    const supplier = data[i][supplierColumnIndex]?.trim();
+                    if (supplier) {
+                        if (uniqueSuppliers.has(supplier)) {
+                            duplicateExists = true;
+                            break;
+                        }
+                        uniqueSuppliers.add(supplier);
+                    }
+                }
+
+                if (duplicateExists) {
+                    // Show error message
+                    Swal.fire({
+                        icon: "error",
+                        title: "Duplicate Supplier",
+                        text: "Supplier already selected. Please choose a different supplier."
+                    });
+
+                    // Disable save and submit buttons
+                    $("#btnsave").attr("disabled", true);
+                    $("#btnsubmit").attr("disabled", true);
+                } else {
+                    // Enable save and submit buttons if no duplicates
+                    $("#btnsave").attr("disabled", false);
+                    $("#btnsubmit").attr("disabled", false);
+                }
+            }
+        }
+        });
+
+        $("#btnsave").on('click', function (evt) {
+            evt.preventDefault();
+            var validationStatus = validateForm();
+
+        if (!validationStatus.isValid) {
+            // Validation failed, show a Swal.fire alert
+            Swal.fire({
+                title: 'Validation Error',
+                text: 'Please fill in all mandatory fields. Missing: ' + validationStatus.missingField,
+                icon: 'error',
+            });
+            return;
+        }
+                function validateGrid(gridData, validationRules) {
+        let hasValidRow = false;
+
+        // Check if the grid has any non-empty rows
+        if (gridData.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                text: "Planning Data is missing", // Message for no data in the grid
+            });
+            return false;
+        }
+
+        // Validate each row in the grid
+        for (let rowKey in gridData) {
+            const row = gridData[rowKey];
+            const rowIndex = parseInt(rowKey) + 1;
+
+            let rowIsValid = true;
+            for (let rule of validationRules) {
+                // Check each validation rule
+                if (!rule.condition(row)) {
+                    rowIsValid = false;
+                    Swal.fire({
+                        icon: 'info',
+                        text: `Validation failed in row ${rowIndex}: ${rule.errorMessage}`,
+                    });
+                    return false; // Stop validation immediately
+                }
+            }
+
+            // If any row passes validation, flag it as valid
+            if (rowIsValid) hasValidRow = true;
+        }
+
+        // If none of the rows is valid, show "Planning Data is missing"
+        if (!hasValidRow) {
+            Swal.fire({
+                icon: 'info',
+                text: "Planning Data is missing", // Message for all rows being invalid
+            });
+            return false;
+        }
+
+        return true; // All validations passed and at least one valid row exists
+    }
+
+
+    function collectAndValidateData(container, validationRules, mapCallback) {
+        const hotInstance = container.data('handsontable');
+        const gridData = hotInstance.getSourceData().filter(row => !hotInstance.isEmptyRow(row));
+
+        if (!validateGrid(gridData, validationRules)) return null;
+
+        return gridData.map(mapCallback);
+    }
+            const SupValidationRules = [
+                {
+                    condition: row => row[0] && row[0].trim() !== "",
+                    errorMessage: "Supplier is mandatory.",
+                }
+            ];
+
+            var planData = collectAndValidateData($container1, SupValidationRules, row => ({
+            supp_name: row[0],
+            jan_feb_mar: row[1],
+            apr_may_jun: row[2],
+            jul_aug_sep: row[3],
+            oct_nov_dec: row[4],
+            submit_status: "N", // or "Y" for submission
+            plan_slno: row[5] || 0,
+            plant_slno: row[6] || plantslno,
+                        }));
+                        console.log("planData",planData);
+                             //observation portion
+
+    if (!planData) {
+        $('#loadingSpinner').addClass('d-none');
+        return;
+
+    }
+    var planyear=$('#plan_year').val();
+    var formData = new FormData();
+    formData.append("plandata", JSON.stringify(planData));
+    formData.append("planyear", planyear);
+    console.log("formData",formData);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Edit", "SupplierAuditPlan_OLD")',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.status === "Submitted") {
+                        showSubmitAlert();
+                        let planYear = response.planYear;
+                        let plantSlno = response.plantSlno;
+                        setTimeout(() => {
+                        window.location.href = `@Url.Action("Edit", "SupplierAuditPlan_OLD")?plan_year=${encodeURIComponent(planYear)}&plantslno=${plantSlno}`
+                        }, 2000);
+                        } else {
+                    alert('Failed to save data.');
+                }
+                },
+
+            });
+        });
+
+         $("#btnsubmit").on('click', function (evt) {
+            evt.preventDefault();
+            var validationStatus = validateForm();
+
+        if (!validationStatus.isValid) {
+            // Validation failed, show a Swal.fire alert
+            Swal.fire({
+                title: 'Validation Error',
+                text: 'Please fill in all mandatory fields. Missing: ' + validationStatus.missingField,
+                icon: 'error',
+            });
+            return;
+        }
+                function validateGrid(gridData, validationRules) {
+        let hasValidRow = false;
+
+        // Check if the grid has any non-empty rows
+        if (gridData.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                text: "Planning Data is missing", // Message for no data in the grid
+            });
+            return false;
+        }
+
+        // Validate each row in the grid
+        for (let rowKey in gridData) {
+            const row = gridData[rowKey];
+            const rowIndex = parseInt(rowKey) + 1;
+
+            let rowIsValid = true;
+            for (let rule of validationRules) {
+                // Check each validation rule
+                if (!rule.condition(row)) {
+                    rowIsValid = false;
+                    Swal.fire({
+                        icon: 'info',
+                        text: `Validation failed in row ${rowIndex}: ${rule.errorMessage}`,
+                    });
+                    return false; // Stop validation immediately
+                }
+            }
+
+            // If any row passes validation, flag it as valid
+            if (rowIsValid) hasValidRow = true;
+        }
+
+        // If none of the rows is valid, show "Planning Data is missing"
+        if (!hasValidRow) {
+            Swal.fire({
+                icon: 'info',
+                text: "Planning Data is missing", // Message for all rows being invalid
+            });
+            return false;
+        }
+
+        return true; // All validations passed and at least one valid row exists
+    }
+
+
+    function collectAndValidateData(container, validationRules, mapCallback) {
+        const hotInstance = container.data('handsontable');
+        const gridData = hotInstance.getSourceData().filter(row => !hotInstance.isEmptyRow(row));
+
+        if (!validateGrid(gridData, validationRules)) return null;
+
+        return gridData.map(mapCallback);
+    }
+            const SupValidationRules = [
+                     {
+                    condition: row => row[0] && row[0].trim() !== "",
+                    errorMessage: "Supplier is mandatory.",
+                    },
+                {
+        condition: row => {
+            if (row[0] && row[0].trim() !== "") {
+                // Check if at least one of row[1], row[2], row[3], or row[4] is "Yes"
+                return row[1] === "Yes" || row[2] === "Yes" || row[3] === "Yes" || row[4] === "Yes";
+            }
+            return true; // If row[0] is not filled, no error
+        },
+        errorMessage: "If a supplier is specified, at least one field for Jan-Mar, Apr-Jun, Jul-Sep, or Oct-Dec must be marked as 'Yes'.",
+    }
+
+            ];
+            console.log("plantslno",plantslno);
+            //observation portion
+         var planData = collectAndValidateData($container1, SupValidationRules, row => ({
+             supp_name: row[0],
+            jan_feb_mar: row[1],
+            apr_may_jun: row[2],
+            jul_aug_sep: row[3],
+            oct_nov_dec: row[4],
+            submit_status: "Y", // or "Y" for submission
+            plan_slno: row[5] || 0,
+            plant_slno: row[6] || plantslno,
+                        }));
+
+    if (!planData) {
+        $('#loadingSpinner').addClass('d-none');
+        return;
+
+    }
+    console.log("plandata",planData);
+    var planyear=$('#plan_year').val();
+    var formData = new FormData();
+    formData.append("plandata", JSON.stringify(planData));
+    formData.append("planyear", planyear);
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Edit", "SupplierAuditPlan_OLD")',
+                data: formData,
+                dataType: "json",
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.status=="Submitted") {
+                        showSubmitAlert();
+                        setTimeout(() => {
+                            window.location.href = "@Url.Action("Index", "SupplierAuditPlan_OLD")";
+                        }, 2000);
+                    } else {
+                        alert('Failed to save data.');
+                    }
+                },
+
+            });
+        });
+
+
+        function GetData() {
+            var dArray = [];
+            var planyr = $("#plan_year").val();
+
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: '@Url.Action("Getplans")', // Replace with your actual endpoint
+                data: { planyr: planyr },
+                contentType: 'application/json charset=utf-8',
+                success: function (res) {
+                    if (res.length > 0) {
+                // Toggle buttons based on submit_status for the first row (if applicable)
+                if (res[0].submit_status === "Y") {
+                    $("#btnsave").hide(); // Hide buttons if status is 'Y'
+                    $("#btnsubmit").hide();
+                } else {
+                    $("#btnsave").show(); // Show buttons for any other status
+                    $("#btnsubmit").show();
+                }
+                        dArray = res.map(item => [
+                            item.supp_name,
+                            item.jan_feb_mar,
+                            item.apr_may_jun,
+                            item.jul_aug_sep,
+                            item.oct_nov_dec,
+                            item.plan_slno,
+                            item.plant_slno
+                        ]);
+                    }
+                },
+                error: function (jqxhr, status, error) {
+                    Swal.fire("Error During standard data Details", error, "error");
+                }
+            }).done(function () {
+                console.log("Data Loaded:", dArray);
+                var hotInstance = $container1.data('handsontable');
+                hotInstance.loadData(dArray); // Load data into Handsontable
+            });
+        }
+    });
+
+</script>
