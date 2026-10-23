@@ -1,0 +1,83 @@
+@model Class_factory_act_master
+
+@{
+    ViewData["Title"] = "Edit Group";
+}
+
+<div class="container mt-3">
+    <h2>Edit Factory Act</h2>
+    <hr />
+    <form asp-action="Edit" method="post" id="group-form">
+        <input type="hidden" asp-for="factory_act_slno" />
+        <input type="hidden" asp-for="created_by" />
+        <input type="hidden" asp-for="created_dt" />
+        <div class="row">
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label asp-for="effective_dt" class="form-label mandatory"></label>
+                    <input asp-for="effective_dt" class="form-control" id="effective_dt" type="date" />
+                    <span asp-validation-for="effective_dt" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="legal_requirement" class="form-label mandatory"></label>
+                    <input asp-for="legal_requirement" class="form-control" id="legal_requirement" />
+                    <span asp-validation-for="legal_requirement" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="compliance_rule_act_reference" class="form-label mandatory"></label>
+                    <input asp-for="compliance_rule_act_reference" class="form-control" id="compliance_rule_act_reference" />
+                    <span asp-validation-for="compliance_rule_act_reference" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="compliance_approving_authority" class="form-label mandatory"></label>
+                    <input asp-for="compliance_approving_authority" class="form-control" id="compliance_approving_authority" />
+                    <span asp-validation-for="compliance_approving_authority" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="appointed_competent_person" class="form-label mandatory"></label>
+                    <textarea asp-for="appointed_competent_person" class="form-control" id="appointed_competent_person"></textarea>
+                    <span asp-validation-for="appointed_competent_person" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-save" id="submit-btn">Save</button>
+            <a asp-action="Index" class="btn btn-list">List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            $('#group-form').on('submit', function (e) {
+                e.preventDefault();
+                var form = this;
+
+                // stop if client validation fails
+                if ($(form).valid && !$(form).valid()) return;
+
+                $.getJSON('@Url.Action("CheckInUse")', { sl: $('#legal_act_slno').val() })
+                    .done(function (r) {
+                        if (r.inUse) {
+                            alert('You cannot modify this Act as data is present in transactions.');
+                        } else if (confirm('Do you want to update the data?')) {
+                            form.submit(); // native submit, doesn't re-trigger this handler
+                        }
+                    })
+                    .fail(function () {
+                        alert('Unable to verify transaction data. Please try again.');
+                    });
+            });
+        });
+    </script>
+}

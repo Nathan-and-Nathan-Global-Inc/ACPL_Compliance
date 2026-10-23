@@ -1,0 +1,88 @@
+@model Class_legal_act_master
+
+@{
+    ViewData["Title"] = "Create Legal Act";
+}
+
+<div class="container mt-3">
+    <h2>Create Legal Act</h2>
+    <hr />
+    <form asp-action="Create" method="post" id="group-form">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label asp-for="effective_dt" class="form-label mandatory"></label>
+                    <input asp-for="effective_dt" class="form-control" id="effective_dt" type="date" />
+                    <span asp-validation-for="effective_dt" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="group_slno" class="form-label mandatory"></label>
+                    <select asp-for="group_slno" class="form-select myselect mandatory-field" data-display-name="Group" id="group_desc"
+                            asp-items="@(new SelectList(ViewBag.group_desc, "id", "group_desc"))">
+                        <option value="0" selected>Select..</option>
+                    </select>
+                    <span asp-validation-for="group_slno" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="amendment_version_date_year" class="form-label mandatory"></label>
+                    <input asp-for="amendment_version_date_year" class="form-control" id="amendment_version_date_year" />
+                    <span asp-validation-for="amendment_version_date_year" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="rule_section_applicable" class="form-label mandatory"></label>
+                    <input asp-for="rule_section_applicable" class="form-control" id="rule_section_applicable" />
+                    <span asp-validation-for="rule_section_applicable" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="regulatory_body" class="form-label mandatory"></label>
+                    <input asp-for="regulatory_body" class="form-control" id="regulatory_body" />
+                    <span asp-validation-for="regulatory_body" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="activity_description" class="form-label mandatory"></label>
+                    <textarea asp-for="activity_description" class="form-control" id="activity_description"></textarea>
+                    <span asp-validation-for="activity_description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="act_law_rules_name" class="form-label mandatory"></label>
+                    <textarea asp-for="act_law_rules_name" class="form-control" id="act_law_rules_name"></textarea>
+                    <span asp-validation-for="act_law_rules_name" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-submit" id="submit-btn">Submit</button>
+            <a asp-action="Index" class="btn btn-list">List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+<script>
+    $(document).ready(function () {
+
+      const currentDate = new Date();
+          // Format the date to yyyy-MM-dd
+          const formattedDate = currentDate.toISOString().split('T')[0];
+          // Set the formatted date in the textbox
+          $('#effective_dt').val(formattedDate);
+       });
+
+</script>
+}
+
+

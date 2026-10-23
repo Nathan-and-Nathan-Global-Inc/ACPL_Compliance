@@ -1,0 +1,31 @@
+@model Class_legal_act_master
+
+@{
+    ViewData["Title"] = "Topic Details";
+}
+
+<div class="container mt-3">
+    <h2>Group Master</h2>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Id</dt>
+        <dd class="col-sm-9">@Model.legal_act_slno</dd>
+
+        <dt class="col-sm-3">Group Desc</dt>
+        <dd class="col-sm-9">@Model.group_desc</dd>
+        <dt class="col-sm-3">Activity Description</dt>
+        <dd class="col-sm-9">@Model.activity_description</dd>
+        <dt class="col-sm-3">Name of the Act/Law/Rules</dt>
+        <dd class="col-sm-9">@Model.act_law_rules_name</dd>
+        <dt class="col-sm-3">Amendment / Version / Date / Year of Release</dt>
+        <dd class="col-sm-9">@Model.amendment_version_date_year</dd>
+        <dt class="col-sm-3">Rule / Section Applicable</dt>
+        <dd class="col-sm-9">@Model.rule_section_applicable</dd>
+        <dt class="col-sm-3">Regulatory Body</dt>
+        <dd class="col-sm-9">@Model.regulatory_body</dd>
+    </dl>
+    <div class="d-flex gap-2">
+        <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.legal_act_slno">Edit</a>
+        <a class="btn btn-secondary" asp-action="Index">Back</a>
+    </div>
+</div>
