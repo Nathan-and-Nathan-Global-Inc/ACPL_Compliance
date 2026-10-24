@@ -20,20 +20,20 @@ namespace calibpro.Controllers
             _db = db;
         }
 
-        // GET: /legalactmaster
+        // GET: /Factoryactmaster
         public IActionResult Index()
         {
             try
             {
-                var legalacts = _db.SelectAll<Class_factory_act_master>()
+                var Factoryacts = _db.SelectAll<Class_factory_act_master>()
                     .Where(t => t.del_status == false)
                     .OrderBy(t => t.effective_dt)
                     .ToList();
-                return View(legalacts);
+                return View(Factoryacts);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading Legal Acts");
+                _logger.LogError(ex, "Error loading Factory Acts");
                 TempData["msg"] = "Error loading Factory Acts";
                 return View(Enumerable.Empty<Class_factory_act_master>());
             }

@@ -161,6 +161,13 @@ namespace calibpro.Controllers
             {
                 return NotFound();
             }
+
+            if (IsGroupInUse(sl))
+            {
+                TempData["msg"] = "GroupInUse";
+                return RedirectToAction(nameof(Index));
+            }
+
             return View(group);
         }
 
@@ -175,6 +182,12 @@ namespace calibpro.Controllers
                 if (group == null)
                 {
                     return NotFound();
+                }
+
+                if (IsGroupInUse(sl))
+                {
+                    TempData["msg"] = "GroupInUse";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 group.del_status = true;
@@ -207,6 +220,12 @@ namespace calibpro.Controllers
                     && (!excludeId.HasValue || t.id != excludeId.Value));
 
             return Json(new { unique = !exists, message = exists ? "Group desc already exists" : "" });
+        }
+
+        private bool IsGroupInUse(int groupId)
+        {
+            return _db.SelectAll<Class_legal_act_master>()
+                .Any(t => t.del_status == false && t.group_slno == groupId);
         }
     }
 }

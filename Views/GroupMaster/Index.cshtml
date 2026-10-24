@@ -17,19 +17,27 @@
 
 @using Newtonsoft.Json
 <script>
-    chkresponse();
+        chkresponse();
     function chkresponse() {
-        var msg = '@TempData["msg"]';
-        if (msg == 'Data Submitted') {
-            showSubmitAlert();
-        }
-        else if (msg == 'Data Saved') {
-            showSaveAlert();
-        }
-        else if (msg == 'Data Deleted') {
-            showDeleteAlert();
-        }
+    var msg = '@TempData["msg"]';
+    if (msg == 'Data Submitted') {
+        showSubmitAlert();
     }
+    else if (msg == 'Data Saved') {
+        showSaveAlert();
+    }
+    else if (msg == 'Data Deleted') {
+        showDeleteAlert();
+    }
+        else if (msg == 'GroupInUse') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cannot Delete',
+            text: 'You cannot delete this group as it is already used in Legal Act Master.',
+            confirmButtonText: 'OK'
+        });
+    }
+}
     (function() {
         var tableData = @Html.Raw(JsonConvert.SerializeObject(Model));
 
@@ -58,7 +66,7 @@
                 },
                 // Hidden id column (for filtering/exports if needed)
                 { title: "Id", field: "id", visible: false },
-                { title: "Group Desc", field: "group_desc", headerFilter: true },
+                { title: "Group Description", field: "group_desc", headerFilter: true },
                 // Delete icon last column
                 {
                     title: "",

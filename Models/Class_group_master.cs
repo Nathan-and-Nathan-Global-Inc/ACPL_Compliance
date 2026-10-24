@@ -18,7 +18,7 @@ using System.ComponentModel.DataAnnotations;
 public class Class_group_master : IDisposable {
     [Display (Name="Id" )]
     public int id { get; set; }
-    [Display (Name="Group Desc" )]
+    [Display (Name="Group Description" )]
     public String group_desc { get; set; }
     [Display (Name="Del Status" )]
     public bool del_status { get; set; }

@@ -21,29 +21,29 @@
             </div>
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label asp-for="legal_requirement" class="form-label mandatory"></label>
-                    <input asp-for="legal_requirement" class="form-control" id="legal_requirement" />
+                    <label asp-for="legal_requirement" class="form-label mandatory">Legal Requirement <span id="ActCharCount">(0/500 chars allowed)</span></label>
+                    <input asp-for="legal_requirement" class="form-control" id="legal_requirement" maxlength="500" />
                     <span asp-validation-for="legal_requirement" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label asp-for="compliance_rule_act_reference" class="form-label mandatory"></label>
-                    <input asp-for="compliance_rule_act_reference" class="form-control" id="compliance_rule_act_reference" />
+                    <label asp-for="compliance_rule_act_reference" class="form-label mandatory">Compliance Rule / Act Reference <span id="RulCharCount">(0/500 chars allowed)</span></label>
+                    <input asp-for="compliance_rule_act_reference" class="form-control" id="compliance_rule_act_reference" maxlength="500" />
                     <span asp-validation-for="compliance_rule_act_reference" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label asp-for="compliance_approving_authority" class="form-label mandatory"></label>
-                    <input asp-for="compliance_approving_authority" class="form-control" id="compliance_approving_authority" />
+                    <label asp-for="compliance_approving_authority" class="form-label mandatory">Compliance Approving Authority <span id="ApprCharCount">(0/200 chars allowed)</span></label>
+                    <input asp-for="compliance_approving_authority" class="form-control" id="compliance_approving_authority" maxlength="200" />
                     <span asp-validation-for="compliance_approving_authority" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="appointed_competent_person" class="form-label mandatory"></label>
-                    <textarea asp-for="appointed_competent_person" class="form-control" id="appointed_competent_person"></textarea>
+                    <label asp-for="appointed_competent_person" class="form-label mandatory">Name of the appointed / designated competent person <span id="NameCharCount">(0/200 chars allowed)</span></label>
+                    <input asp-for="appointed_competent_person" class="form-control" id="appointed_competent_person" maxlength="200" />
                     <span asp-validation-for="appointed_competent_person" class="text-danger"></span>
                 </div>
             </div>
@@ -79,5 +79,61 @@
                     });
             });
         });
+
+        // Common character count function
+            function updateCharCount(inputId, countId, maxLength) {
+                const value = $('#' + inputId).val() || '';
+
+                $('#' + countId).text(
+                    '(' + value.length + '/' + maxLength + ' chars allowed)'
+                );
+            }
+
+
+            // Legal Requirement - 500 characters
+            $('#legal_requirement').on('input', function () {
+                updateCharCount(
+                    'legal_requirement',
+                    'ActCharCount',
+                    500
+                );
+            });
+
+
+            // Compliance Rule / Act Reference - 500 characters
+            $('#compliance_rule_act_reference').on('input', function () {
+                updateCharCount(
+                    'compliance_rule_act_reference',
+                    'RulCharCount',
+                    500
+                );
+            });
+
+
+            // Compliance Approving Authority - 200 characters
+            $('#compliance_approving_authority').on('input', function () {
+                updateCharCount(
+                    'compliance_approving_authority',
+                    'ApprCharCount',
+                    200
+                );
+            });
+
+
+            // Appointed / Designated Competent Person - 200 characters
+            $('#appointed_competent_person').on('input', function () {
+                updateCharCount(
+                    'appointed_competent_person',
+                    'NameCharCount',
+                    200
+                );
+            });
+
+
+            // Initialize character counts on page load
+            updateCharCount('legal_requirement', 'ActCharCount', 500);
+            updateCharCount('compliance_rule_act_reference', 'RulCharCount', 500);
+            updateCharCount('compliance_approving_authority', 'ApprCharCount', 200);
+            updateCharCount('appointed_competent_person', 'NameCharCount', 200);
     </script>
 }

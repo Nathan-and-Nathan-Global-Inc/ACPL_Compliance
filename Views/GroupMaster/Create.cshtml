@@ -11,8 +11,8 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label asp-for="group_desc" class="form-label mandatory"></label>
-                    <input asp-for="group_desc" class="form-control" id="group-desc" />
+                    <label asp-for="group_desc" class="form-label mandatory">Group Description <span id="charCount">(0/300 chars allowed)</span></label>
+                    <input asp-for="group_desc" class="form-control" id="group-desc" maxlength="300" />
                     <span asp-validation-for="group_desc" class="text-danger"></span>
                     <div id="group-desc-unique" class="text-danger mt-1" style="display:none"></div>
                 </div>
@@ -29,6 +29,17 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         (function(){
+
+            var maxLength = 300;
+            var $commentBox = $('#group-desc');
+            var $charCount = $('#charCount');
+            function updateCharCount() {
+                if (!$commentBox.length || !$charCount.length) return;
+                $charCount.text('(' + ($commentBox.val() || '').length + '/' + maxLength + ' chars allowed)');
+            }
+            updateCharCount();
+            $commentBox.on('input', updateCharCount);
+
             var nameInput = document.getElementById('group-desc');
             var submitBtn = document.getElementById('submit-btn');
             var nameMsg = document.getElementById('group-desc-unique');
