@@ -1,0 +1,205 @@
+﻿@model IEnumerable<Class_legal_act_report>
+
+<div style="overflow:auto;">
+    <table class="table table-bordered table-hover" id="tblidx">
+        <thead style="text-wrap:none">
+            <tr>
+                <th>
+                    Slno
+                </th>
+                <th>
+                    Activity Description
+                </th>
+                <th>
+                    Act Groups
+                </th>
+                <th>
+                    Name of the Act/Law/Rules
+                </th>
+                <th>
+                    Amendment / Version / Date / Year of release
+                </th>
+                <th>
+                    Rule / Section applicable
+                </th>
+                <th>
+                Regulatory Body
+                </th>
+                <th>
+                    Responsibility
+                </th>
+                <th>
+                    Responsibility Person
+                </th>
+                <th>
+                    Frequency of renewal
+                </th>
+                <th>
+                    Frequency of returns
+                </th>
+                <th>
+                    Frequency of Entry submission
+                </th>
+                <th>
+                    Form No./ Document
+                </th>
+                <th>
+                    Date of Filing
+                </th>
+                <th>
+                    Valid From
+                </th>
+                <th>
+                    Valid Upto
+                </th>
+                <th>
+                    Next Due Date for application filing
+                </th>
+               
+                <th>
+                    April
+                </th>
+                <th>
+                    May
+                </th>
+                <th>
+                    June
+                </th>
+                <th>
+                    July
+                </th>
+                <th>
+                    Aug
+                </th>
+                <th>
+                    Sep
+                </th>
+                <th>
+                    Oct
+                </th>
+                <th>
+                    Nov
+                </th>
+                <th>
+                    Dec
+                </th>
+                <th>
+                    Jan
+                </th>
+                <th>
+                    Feb
+                </th>
+                <th>
+                    March
+                </th>
+                <th>
+                    FY Onwards
+                </th>
+                <th>
+                    COMPLIANCE STATUS
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.indexdata)
+            {
+                <tr>
+
+                    <td>
+                        @item.legal_act_slno
+                    </td>
+                    <td>
+                        @item.activity_description
+                    </td>
+                    <td>
+                        @item.group_desc
+                    </td>
+                    <td>
+                        @item.act_law_rules_name
+                    </td>
+                    <td>
+                        @item.amendment_version_date_year
+                    </td>
+                    <td>
+                        @item.rule_section_applicable
+                    </td>
+                    <td>
+                        @item.regulatory_body
+                    </td>
+                    <td>
+                        @item.responsibility
+                    </td>
+                    <td>
+                        @item.responsibility_person
+                    </td>
+                    <td>
+                        @item.freq_renewal
+                    </td>
+                    <td>
+                        @item.freq_returns
+                    </td>
+                    <td>
+                        @item.freq_entry_submission
+                    </td>
+                    <td>
+                        @item.form_no
+                    </td>
+                    <td>
+                        @item.date_filing
+                    </td>
+                    <td>
+                        @item.valid_from
+                    </td>
+                    <td>
+                        @item.valid_upto
+                    </td>
+                    <td>
+                        @item.next_due_for_application_filing
+                    </td>
+                    <td>
+                        @item.apr
+                    </td>
+                    <td>
+                        @item.may
+                    </td>
+                    <td>
+                        @item.jun
+                    </td>
+                    <td>
+                        @item.jul
+                    </td>
+                    <td>
+                        @item.aug
+                    </td>
+                    <td>
+                        @item.sep
+                    </td>
+                    <td>
+                        @item.oct
+                    </td>
+                    <td>
+                        @item.nov
+                    </td>
+                    <td>
+                        @item.dec
+                    </td>
+                    <td>
+                        @item.jan
+                    </td>
+                    <td>
+                        @item.feb
+                    </td>
+                    <td>
+                        @item.mar
+                    </td>
+                    <td>
+                        @item.fy_onwards
+                    </td>
+                    <td>
+                        @item.compliance_status
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

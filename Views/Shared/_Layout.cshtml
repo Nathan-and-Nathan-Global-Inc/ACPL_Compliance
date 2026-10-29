@@ -107,12 +107,13 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item dropdown d-none">
+                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Reports
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="ValidationSummary" asp-action="Index">Validation Summary</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="FactoryReport" asp-action="ViewReport">Factory Report</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="LegalActReport" asp-action="ViewReport">Legal Act Report</a></li>
                             </ul>
                         </li>
                     </ul>
