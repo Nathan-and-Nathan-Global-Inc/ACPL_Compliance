@@ -1,0 +1,305 @@
+﻿@model Class_legal_act_report
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/lib/Content/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" rel="stylesheet" />
+<script src="~/lib/Content/dist/DataTables/jquery.dataTables.js"></script>
+<script src="~/lib/Content/dist/DataTables/dataTables.bootstrap4.js"></script>
+<script src="~/lib/Content/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/lib/Content/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+
+<script src="~/lib/Content/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/lib/Content/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+
+<link href="~/lib/c3/c3.css" rel="stylesheet" />
+<link href="~/lib/Content/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+<link href="~/lib/Content/plugins/select2-bootstrap4-theme/select2-bootstrap4.css" rel="stylesheet" />
+<link href="~/lib/Content/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" />
+<script src="~/lib/Content/plugins/moment/moment.min.js"></script>
+<script src="~/lib/c3/d3-5.8.2.min.js"></script>
+<script src="~/lib/c3/c3.min.js"></script>
+<script src="~/lib/Content/plugins/select2/js/select2.full.min.js"></script>
+<script src="~/lib/Content/plugins/daterangepicker/daterangepicker.js"></script>
+
+
+<div class="row mb-2">
+    <div class="col-sm-6">
+        <h3 class="m-0">
+            Legal Act Report
+        </h3>
+    </div><!-- /.col -->
+</div><!-- /.row -->
+
+<div class="col-md-12">
+    <div id="accordion">
+        <form asp-controller="RptMonthlySummary"
+              asp-action="Download"
+              method="post"
+              id="summaryForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="card card-secondary">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h4 class="card-title w-100">
+                                <button class="btn btn-link text-blue"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne">
+                                    Filter (click to open/close)
+                                </button>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div id="collapseOne" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-2">
+                                <div class="form-group" style="color:forestgreen">
+                                    <label asp-for="plan_year" class="control-label">
+                                        <i class="fas fa-check"></i> CY
+                                    </label>
+                                    <input asp-for="plan_year" class="form-control" />
+
+                                    <span asp-validation-for="plan_year" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="form-group">
+                                    <label asp-for="group_slno" class="control-label">Group</label>
+                                    <select asp-for="group_slno" class="form-select myselect" id="group_slno"
+                                            asp-items="@(new SelectList(@ViewBag.groups, "id", "group_desc"))">
+                                        <option value="0">Select</option>
+                                        </select>
+                                    <span asp-validation-for="group_slno" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label asp-for="status" class="control-label">Status</label>
+                                <select asp-for="status" class="form-control" id="status">
+                                    <option value="0">Select</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Inprogress">Inprogress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                                <span asp-validation-for="status" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-4">
+                                <br />
+                                <button type="button" id="btnView" class="btn btn-primary">
+                                    View
+                                </button>
+
+                                <button type="button"
+                                        id="btnDownload"
+                                        class="btn btn-primary">
+                                    Download
+                                </button>
+
+                                <input type="button" id="btnClear" value="Clear Filter" class="btn btn-secondary" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="reportResult" class="content tableFixHead card" style="overflow:auto;height:700px">
+    <partial name="DisplayLegalActReport" />
+</div>
+
+
+
+<script type="text/javascript">
+    chkresponse();
+    var yr =@ViewBag.Years;
+
+    $('#plan_year').val(yr);
+
+    function chkresponse() {
+        var msg = '@TempData["msg"]';
+        var info = '@TempData["info"]';
+        if (msg != '') {
+            toastr.success(msg, "Save");
+        }
+        if (info != '') {
+            toastr.info(info, "Info");
+        }
+    }
+
+    var suppressCascade = 0;
+
+    function initSelect2() {
+        $('.myselect').select2({
+            theme: "bootstrap-5",
+            width: '100%'
+        });
+    }
+
+    function parseJson(data) {
+        return (typeof data === "string") ? JSON.parse(data) : data;
+    }
+
+    function fillSelect($el, items, valueKey, textKey) {
+        suppressCascade++;
+        $el.empty();
+        $.each(items || [], function (i, item) {
+            $el.append('<option value="' + item[valueKey] + '">' + item[textKey] + '</option>');
+        });
+        $el.val($el.find('option:first').val()).trigger('change.select2');
+        suppressCascade--;
+    }
+
+    $(document).ready(function () {
+        initSelect2();
+
+
+        $('#btnClear').on('click', function (evt) {
+            evt.preventDefault();
+            window.location.href = '@Url.Action("RptMonthlysummary", "RptMonthlysummary")';
+        });
+
+        $('#btnView').on('click', function (evt) {
+            evt.preventDefault();
+
+            var entrydate = $('#entry_date').val();
+            var v = getFilterVals();
+
+            if (!v.plantslno || v.plantslno === '0' || !entrydate) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation',
+                    text: 'Plant and Entry Date are mandatory.'
+                });
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("MonthlyView", "RptMonthlySummary")',
+                data: {
+                    plantslno: v.plantslno,
+                    fnslno: v.fnslno,
+                    entrydate: entrydate,
+                    eleslno: v.eleslno,
+                    intlextldesc: v.intlextldesc,
+                    costdefslno: v.costdefslno,
+                    fatypeslno: v.fatypeslno,
+                    calcformula: v.calcformula
+                },
+                success: function (response) {
+                    $("#reportResult").html(response);
+                    if ($("#reportResult #tblidx tbody tr").length === 0) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'No Data exists for the selected filter'
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Unable to load report data.'
+                    });
+                }
+            });
+        });
+
+                  // Auto select first actual plant
+    var $plant = $('#plant_slno');
+
+    var $firstPlant = $plant.find('option').filter(function () {
+        return $(this).val() !== '0' && $(this).val() !== '';
+    }).first();
+
+    if ($firstPlant.length > 0) {
+        $plant.val($firstPlant.val()).trigger('change');
+    }
+
+    chkresponse();
+    });
+
+        $('#btnDownload').on('click', function () {
+
+        var entrydate = $('#entry_date').val();
+        var plantslno = $('#plant_slno').val();
+
+        if (!plantslno || plantslno === '0' || !entrydate) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation',
+                text: 'Plant and Entry Date are mandatory.'
+            });
+
+            return;
+        }
+
+        var form = $('#summaryForm');
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Download", "RptMonthlySummary")',
+            data: form.serialize(),
+            xhrFields: {
+                responseType: 'blob'
+            },
+                success: function (data, status, xhr) {
+
+        var filename = 'cnq_summary.xlsx';
+        var disposition = xhr.getResponseHeader('Content-Disposition');
+
+        if (disposition) {
+
+            // filename="cnq_summary.xlsx"
+            var match = disposition.match(/filename\*?=(?:UTF-8''|")?([^;"\n]+)/i);
+
+            if (match && match[1]) {
+                filename = decodeURIComponent(match[1].replace(/"/g, '').trim());
+            }
+        }
+
+        // Make sure extension is present
+        if (!filename.toLowerCase().endsWith('.xlsx')) {
+            filename += '.xlsx';
+        }
+
+        var blob = new Blob(
+            [data],
+            {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }
+        );
+
+        var link = document.createElement('a');
+
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(link.href);
+    },
+            error: function (xhr) {
+
+                console.log("Download error:", xhr.status);
+                console.log("Response:", xhr.responseText);
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Download Error',
+                    text: 'Unable to download the report.'
+                });
+            }
+        });
+    });
+</script>
