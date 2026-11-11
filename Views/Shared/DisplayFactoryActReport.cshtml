@@ -1,0 +1,97 @@
+﻿@model IEnumerable<Class_factory_act_report>
+
+    <div style="overflow:auto;">
+        <table class="table table-bordered table-hover" id="tblidx">
+            <thead style="text-wrap:none">
+                <tr>
+                    <th>
+                        Slno
+                    </th>
+                    <th>
+                        Legal Requirement
+                    </th>
+                    <th>
+                        Compliance Rule / Act reference
+                    </th>
+                    <th>
+                        Compliance Approving Authority
+                    </th>
+                    <th>
+                        Name of the appointed / designated competent person 
+                    </th>
+                <th>
+                    Form No's
+                </th>
+                <th>
+                    Frequency of renewal
+                </th>
+                <th>
+                    Date of Filing
+                </th>
+                <th>
+                    Valid From
+                </th>
+                <th>
+                    Valid Upto
+                </th>
+                <th>
+                    Next Due Date for application filing
+                </th>
+                <th>
+                    Responsibility
+                </th>
+                <th>
+                    Remarks(Complied/Under Progress/Not Complied
+                </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.indexdata)
+                {
+                    <tr>
+
+                        <td>
+                        @item.factory_act_slno
+                        </td>
+                        <td>
+                            @item.legal_requirement
+                        </td>
+                        <td>
+                            @item.compliance_rule_act_reference
+                        </td>
+                        <td>
+                            @item.compliance_approving_authority
+                        </td>
+                        <td>
+                            @item.appointed_competent_person
+                        </td>
+                        <td>
+                            @item.jan
+                        </td>
+                        <td>
+                            @item.feb
+                        </td>
+                        <td>
+                            @item.mar
+                        </td>
+                        <td>
+                            @item.apr
+                        </td>
+                        <td>
+                            @item.may
+                        </td>
+                        <td>
+                            @item.jun
+                        </td>
+                        <td>
+                            @item.jul
+                        </td>
+                        <td>
+                            @item.aug
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+   
