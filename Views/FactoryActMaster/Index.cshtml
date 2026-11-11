@@ -1,0 +1,138 @@
+@model IEnumerable<Class_factory_act_master>
+
+@{
+    ViewData["Title"] = "FactoryActMaster";
+}
+
+<div class="container mt-3">
+    <h3 class="page-title">
+        Factory Act Master
+        <span class="mandatory-note">
+            <a href="@Url.Action("Create", "FactoryActMaster")"
+               class="btn btn-custom btn-add-new">Add New</a>
+        </span>
+    </h3>
+
+    <div id="factory-act-table"></div>
+</div>
+
+@using Newtonsoft.Json
+
+<script>
+    chkresponse();
+
+    function chkresponse() {
+        var msg = '@TempData["msg"]';
+
+        if (msg == 'Data Submitted') {
+            showSubmitAlert();
+        }
+        else if (msg == 'Data Saved') {
+            showSaveAlert();
+        }
+        else if (msg == 'Data Deleted') {
+            showDeleteAlert();
+        }
+    }
+
+    (function () {
+        var tableData = @Html.Raw(JsonConvert.SerializeObject(Model));
+
+        var table = new Tabulator("#factory-act-table", {
+            data: tableData,
+            reactiveData: false,
+            placeholder: "No factory act records found",
+            pagination: true,
+            paginationSize: 10,
+
+            columns: [
+                // Edit icon
+                {
+                    title: "",
+                    field: "factory_act_slno",
+                    width: 60,
+                    hozAlign: "center",
+                    headerSort: false,
+                    formatter: function (cell) {
+                        var id = cell.getValue();
+                        var editUrl = '@Url.Action("Edit", "FactoryActMaster")/' + id;
+
+                        return '<a href="' + editUrl + '" class="btn btn-link p-0" title="Edit">'
+                            + '<i class="bi bi-pencil-square edit-icon" style="font-size:1.1rem"></i>'
+                            + '</a>';
+                    }
+                },
+
+                // Hidden ID column
+                {
+                    title: "Id",
+                    field: "factory_act_slno",
+                    width: 60,
+                    visible: false
+                },
+
+                {
+                    title: "Legal Requirement",
+                    field: "legal_requirement",
+                    headerFilter: true
+                },
+                {
+                    title: "Compliance Rule / Act Reference",
+                    field: "compliance_rule_act_reference",
+                    headerFilter: true
+                },
+                {
+                    title: "Compliance Approving Authority",
+                    field: "compliance_approving_authority",
+                    headerFilter: true
+                },
+                {
+                    title: "Name of the appointed / designated competent person",
+                    field: "appointed_competent_person",
+                    headerFilter: true
+                },
+                {
+                    title: "Effective Date",
+                    field: "effective_dt",
+                    headerFilter: true,
+                    formatter: function (cell) {
+                        var value = cell.getValue();
+
+                        if (!value) {
+                            return "";
+                        }
+
+                        var date = new Date(value);
+
+                        if (isNaN(date.getTime())) {
+                            return value;
+                        }
+
+                        var day = String(date.getDate()).padStart(2, '0');
+                        var month = String(date.getMonth() + 1).padStart(2, '0');
+                        var year = date.getFullYear();
+
+                        return day + "-" + month + "-" + year;
+                    }
+                },
+
+                // Delete icon
+                {
+                    title: "",
+                    field: "factory_act_slno",
+                    width: 60,
+                    hozAlign: "center",
+                    headerSort: false,
+                    formatter: function (cell) {
+                        var id = cell.getValue();
+                        var deleteUrl = '@Url.Action("Delete", "FactoryActMaster")/' + id;
+
+                        return '<a href="' + deleteUrl + '" class="btn btn-link text-danger p-0" title="Delete">'
+                            + '<i class="bi bi-trash-fill delete-icon" style="font-size:1.1rem"></i>'
+                            + '</a>';
+                    }
+                }
+            ]
+        });
+    })();
+</script>
