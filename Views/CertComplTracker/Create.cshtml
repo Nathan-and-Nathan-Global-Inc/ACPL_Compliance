@@ -1,0 +1,279 @@
+@model Class_certi_comp_tracker
+
+@{
+    ViewData["Title"] = "Create Certificate Compliance Tracker";
+}
+
+<div class="container mt-3">
+    <h2>Create Certificate Compliance Tracker</h2>
+    <hr />
+    <form asp-action="Create" method="post" id="group-form">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label asp-for="equipment" class="form-label mandatory">Equipment <span id="EquipCharCount">(0/100 chars allowed)</span></label>
+                    <input asp-for="equipment" class="form-control" id="equipment" maxlength="100" />
+                    <span asp-validation-for="equipment" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="certificate_no" class="form-label mandatory">Certificate No. <span id="certCharCount">(0/100 chars allowed)</span></label>
+                    <input asp-for="certificate_no" class="form-control" id="certificate_no" maxlength="100" />
+                    <span asp-validation-for="certificate_no" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="agency" class="form-label mandatory">Agency <span id="AgencyCharCount">(0/100 chars allowed)</span></label>
+                    <input asp-for="agency" class="form-control" id="agency" maxlength="100"/>
+                    <span asp-validation-for="agency" class="text-danger"></span>
+                </div>
+            <div class="mb-3">
+                <label asp-for="remarks" class="form-label">
+                    Remarks
+                </label>
+                <textarea asp-for="remarks"
+                          class="form-control"
+                          id="remarks"
+                          maxlength="250"
+                          rows="3"></textarea>
+                <span asp-validation-for="remarks" class="text-danger"></span>
+            </div>
+        </div>
+            <div class="col-md-2">
+                <!-- Frequency and Frequency Number in same line -->
+                <div class="mb-3">
+                    <label class="form-label mandatory">Frequency</label>
+
+                    <div class="d-flex gap-2">
+                        <div style="width: 50%;">
+                            <select asp-for="freq_desc"
+                                    class="form-control myselect"
+                                    id="freq_desc"
+                                    required>
+                                <option value="">Select</option>
+                                <option value="Days">Days</option>
+                                <option value="Weeks">Weeks</option>
+                                <option value="Months">Months</option>
+                                <option value="Years">Years</option>
+                            </select>
+                            <span asp-validation-for="freq_desc" class="text-danger"></span>
+                        </div>
+
+                        <div style="width: 50%;">
+                            <input asp-for="freq_no"
+                                   type="number"
+                                   class="form-control"
+                                   id="freq_no"
+                                   min="1"
+                                   step="1"
+                                   required />
+                            <span asp-validation-for="freq_no" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keep your existing date fields here -->
+                <div class="mb-3">
+                    <label asp-for="calib_donedt" class="form-label mandatory">
+                        Calibration Done on
+                    </label>
+                    <input asp-for="calib_donedt"
+                           type="date"
+                           class="form-control"
+                           id="calib_donedt"
+                           max="@DateTime.Today.ToString("yyyy-MM-dd")"
+                           required />
+                    <span asp-validation-for="calib_donedt" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="calib_duedt" class="form-label mandatory">
+                        Calibration Due on
+                    </label>
+                    <input asp-for="calib_duedt"
+                           type="date"
+                           class="form-control"
+                           id="calib_duedt"
+                           readonly />
+                    <span asp-validation-for="calib_duedt" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-submit" id="submit-btn">Submit</button>
+            <a asp-action="Index" class="btn btn-list">List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+             $('.myselect').select2({
+            theme: "bootstrap-5",
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            placeholder: $(this).data('placeholder'),
+        });
+
+            // Activity Description - 500 characters
+            function updateCharCount(inputId, countId, maxLength) {
+                const value = $('#' + inputId).val() || '';
+                $('#' + countId).text(
+                    '(' + value.length + '/' + maxLength + ' chars allowed)'
+                );
+            }
+
+            // Activity Description
+            $('#equipment').on('input', function () {
+                updateCharCount(
+                    'equipment',
+                    'EquipCharCount',
+                    100
+                );
+            });
+
+            // Name of the Act/Law/Rules
+            $('#certificate_no').on('input', function () {
+                updateCharCount(
+                    'certificate_no',
+                    'certCharCount',
+                    100
+                );
+            });
+
+            // Amendment / Version / Date / Year of Release
+            $('#agency').on('input', function () {
+                updateCharCount(
+                    'agency',
+                    'AgencyCharCount',
+                    100
+                );
+            });
+
+
+            // Initialize all character counts on page load
+            updateCharCount('equipment', 'EquipCharCount', 100);
+            updateCharCount('certificate_no', 'certCharCount', 100);
+            updateCharCount('agency', 'AgencyCharCount', 100);
+
+        });
+
+                // Calculate Calibration Due Date
+        function calculateDueDate() {
+
+            var doneDate = $('#calib_donedt').val();
+            var freqNo = parseInt($('#freq_no').val());
+            var freqDesc = $('#freq_desc').val();
+
+            // Clear due date if required values are missing
+            if (!doneDate || !freqNo || freqNo <= 0 || !freqDesc) {
+                $('#calib_duedt').val('');
+                return;
+            }
+
+            // Parse date in local time
+            var parts = doneDate.split('-');
+
+            var year = parseInt(parts[0]);
+            var month = parseInt(parts[1]) - 1;
+            var day = parseInt(parts[2]);
+
+            var dueDate = new Date(year, month, day);
+
+            // Calculate based on selected frequency
+            switch (freqDesc) {
+
+                case "Days":
+                    dueDate.setDate(dueDate.getDate() + freqNo);
+                    break;
+
+                case "Weeks":
+                    dueDate.setDate(dueDate.getDate() + (freqNo * 7));
+                    break;
+
+                case "Months":
+
+                    var targetMonth = dueDate.getMonth() + freqNo;
+                    var targetYear = dueDate.getFullYear() +
+                                     Math.floor(targetMonth / 12);
+
+                    targetMonth = targetMonth % 12;
+
+                    // Handle month-end dates correctly
+                    var lastDay = new Date(
+                        targetYear,
+                        targetMonth + 1,
+                        0
+                    ).getDate();
+
+                    dueDate = new Date(
+                        targetYear,
+                        targetMonth,
+                        Math.min(day, lastDay)
+                    );
+
+                    break;
+
+                case "Years":
+
+                    var targetYear = dueDate.getFullYear() + freqNo;
+
+                    // Handle leap-year dates correctly
+                    var lastDay = new Date(
+                        targetYear,
+                        dueDate.getMonth() + 1,
+                        0
+                    ).getDate();
+
+                    dueDate = new Date(
+                        targetYear,
+                        dueDate.getMonth(),
+                        Math.min(day, lastDay)
+                    );
+
+                    break;
+            }
+
+            // Format as yyyy-MM-dd
+            var formattedDate =
+                dueDate.getFullYear() + '-' +
+                String(dueDate.getMonth() + 1).padStart(2, '0') + '-' +
+                String(dueDate.getDate()).padStart(2, '0');
+
+            $('#calib_duedt').val(formattedDate);
+        }
+
+        // Recalculate whenever any input changes
+        $('#calib_donedt, #freq_no, #freq_desc').on('change input', function () {
+
+            var doneDate = $('#calib_donedt').val();
+
+            if (doneDate) {
+
+                var selectedDate = new Date(doneDate + 'T00:00:00');
+                var today = new Date();
+
+                today.setHours(0, 0, 0, 0);
+
+                if (selectedDate > today) {
+
+                    $('#calib_donedt').val('');
+                    $('#calib_duedt').val('');
+
+                    Swal.fire({
+                        title: "Invalid Date",
+                        text: "Calibration Done Date cannot be a future date.",
+                        icon: "warning"
+                    });
+
+                    return;
+                }
+            }
+
+            calculateDueDate();
+        });
+    </script>
+}
+
+
+
