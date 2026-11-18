@@ -220,17 +220,17 @@ namespace calibpro.Controllers
                 && string.Equals(t.legal_requirement?.Trim(),d,StringComparison.OrdinalIgnoreCase));
         }
 
-       // private bool IsUsedInTransaction(int legalActSlno)
-       // {
-       //     return _db.SelectAll<Class_legal_act_transaction>()
-       //         .Any(t => t.factory_act_slno == legalActSlno && t.del_status == false);
-       // }
+        private bool IsUsedInTransaction(int factoryActSlno)
+        {
+            return _db.SelectAll<Class_factory_act_child>()
+                .Any(t => t.factory_act_slno == factoryActSlno);
+        }
 
-       // //Called by the Edit page before submitting
-       //[HttpGet]
-       // public JsonResult CheckInUse(int sl)
-       // {
-       //     return Json(new { inUse = IsUsedInTransaction(sl) });
-       // }
+        //Called by the Edit page before submitting
+        [HttpGet]
+        public JsonResult CheckInUse(int sl)
+        {
+            return Json(new { inUse = IsUsedInTransaction(sl) });
+        }
     }
 }
