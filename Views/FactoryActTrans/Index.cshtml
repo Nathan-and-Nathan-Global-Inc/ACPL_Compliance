@@ -59,6 +59,32 @@
             paginationSizeSelector: [10, 25, 50, 100],
 
             columns: [
+                    // Index.cshtml  -  Tabulator columns: add this block right after the EDIT column
+    // (so each row shows Edit | Download | ... | Delete). Shown for every row, Draft or Submitted.
+
+                    // DOWNLOAD REPORT
+                    {
+                        title: "",
+                        field: "fact_act_hdr_slno",
+                        width: 60,
+                        hozAlign: "center",
+                        headerSort: false,
+
+                        formatter: function (cell) {
+
+                            var id = cell.getValue();
+
+                            var downloadUrl =
+                                '@Url.Action("DownloadReport", "FactoryActTrans")'
+                                + '?sl=' + id;
+
+                            return '<a href="' + downloadUrl +
+                                '" class="btn btn-link p-0" title="Download Report">' +
+                                '<i class="bi bi-download" ' +
+                                'style="font-size:1.1rem"></i>' +
+                                '</a>';
+                        }
+                    },
 
                 // EDIT
                 {
@@ -83,6 +109,7 @@
                             '</a>';
                     }
                 },
+
 
                 // ID (HIDDEN)
                 {

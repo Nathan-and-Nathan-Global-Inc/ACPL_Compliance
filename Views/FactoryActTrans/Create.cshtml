@@ -23,19 +23,19 @@
             <div class="col-md-2">
                 <div class="mb-3">
                     <label asp-for="entry_by" class="form-label mandatory"></label>
-                    <input asp-for="entry_by" class="form-control" id="entry_by" value="@ViewBag.entry_by" readonly/>
+                    <input asp-for="entry_by" class="form-control" id="entry_by" value="@ViewBag.entry_by" readonly />
                     <span asp-validation-for="entry_by" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="mb-3">
                     <label asp-for="entry_dt" class="form-label mandatory"></label>
-                    <input asp-for="entry_dt" class="form-control" id="entry_dt" type="date"/>
+                    <input asp-for="entry_dt" class="form-control" id="entry_dt" type="date" />
                     <span asp-validation-for="entry_dt" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3">
-            <div id="hot"></div>
+                <div id="hot"></div>
             </div>
         </div>
         <div class="d-flex gap-2">
@@ -202,7 +202,13 @@
                         { type: 'text', readOnly: true },
                         { type: 'text'},
                         { type: 'dropdown', source: ['Months', 'Years'] },
-                        { type: 'numeric' },
+                                {
+            type: 'numeric',
+            numericFormat: {
+                pattern: '0'
+            },
+            allowInvalid: true      // validation is done in beforeChange (rejects 0, decimals, text)
+        },
                         { type: 'text'},
                         {
                             type: 'date',
@@ -235,6 +241,65 @@
                         { type: 'text' },
                          { type: 'text' },
                     ],
+                            // Frequency (column 6): block non-digit keystrokes while typing
+                            beforeKeyDown: function (e) {
+
+                                var selAll = this.getSelected();      // works on old and new Handsontable
+                                var sel = (selAll && selAll.length)
+                                    ? (Array.isArray(selAll[0]) ? selAll[selAll.length - 1] : selAll)
+                                    : null;
+
+                                if (!sel || sel[1] !== 6 || e.ctrlKey || e.metaKey || e.altKey) {
+                                    return;
+                                }
+
+                                // single printable character that is not 0-9 (includes space, '.', '-', 'e', letters)
+                                if (e.key && e.key.length === 1 && !/^[0-9]$/.test(e.key)) {
+                                    e.stopImmediatePropagation();
+                                    e.preventDefault();
+                                }
+                            },
+
+                            // Frequency (column 6): reject on change (paste / drag-fill / any other entry)
+                            beforeChange: function (changes, source) {
+
+                                if (!changes || source === 'loadData') {
+                                    return;
+                                }
+
+                                var rejected = false;
+
+                                for (var i = changes.length - 1; i >= 0; i--) {
+
+                                    if (!changes[i] || changes[i][1] !== 6) {
+                                        continue;
+                                    }
+
+                                    var newValue = changes[i][3];
+
+                                    if (newValue !== null && newValue !== undefined &&
+                                        String(newValue).trim() !== '' &&
+                                        !(/^[0-9]+$/.test(String(newValue).trim()) &&
+                                          Number(newValue) > 0)) {
+
+                                        changes.splice(i, 1);       // reject this change
+                                        rejected = true;
+                                    }
+                                }
+
+                                if (rejected) {
+                                    Swal.fire(
+                                        "Invalid Frequency",
+                                        "Only positive whole numbers are allowed (e.g. 6).",
+                                        "warning"
+                                    );
+
+                                    if (changes.length === 0) {
+                                        return false;               // nothing left to apply
+                                    }
+                                }
+                            },
+
                             afterChange: function (changes, source) {
 
             if (!changes || source === 'loadData' || source === 'auto-calc') {
@@ -253,7 +318,9 @@
                 if ([5, 6, 8].includes(col)) {
 
                     var frequencyType = hot.getDataAtCell(row, 5);
-                    var frequencyValue = parseInt(hot.getDataAtCell(row, 6));
+                    var rawFrequency = hot.getDataAtCell(row, 6);
+                    var frequencyValue = /^\d+$/.test(String(rawFrequency).trim())
+                        ? Number(rawFrequency) : NaN;
                     var validFrom = hot.getDataAtCell(row, 8);
 
                     // Clear Valid Upto if required values are missing
@@ -299,7 +366,6 @@
                             validUpto.getFullYear() + frequencyValue
                         );
                     }
-
                     // Format as DD-MM-YYYY
                     var day = String(validUpto.getDate()).padStart(2, '0');
                     var month = String(validUpto.getMonth() + 1).padStart(2, '0');
@@ -319,7 +385,7 @@
                             "row_above": {
                                 name: 'Insert row above',
                                 callback: function () {
-                                    const selected = this.getSelectedLast();
+                                    const selected = (this.getSelected() || []).slice(-1)[0];
 
                                     if (selected) {
                                         const row = selected[0];
@@ -331,7 +397,7 @@
                             "row_below": {
                                 name: 'Insert row below',
                                 callback: function () {
-                                    const selected = this.getSelectedLast();
+                                    const selected = (this.getSelected() || []).slice(-1)[0];
 
                                     if (selected) {
                                         const row = selected[0];
@@ -387,12 +453,22 @@
             ];
 
             var validationErrors = [];
+            var freqErrors = [];
 
             data.forEach(function (row, rowIndex) {
 
                 // Ignore completely empty rows
                 if (!row[0] && !row[1] && !row[2]) {
                     return;
+                }
+
+                // Frequency must be a positive whole number (Save and Submit)
+                var freqVal = row[6];
+                if (freqVal !== null && freqVal !== undefined &&
+                    String(freqVal).trim() !== '' &&
+                    !(/^\d+$/.test(String(freqVal).trim()) && Number(freqVal) > 0)) {
+
+                    freqErrors.push('Row ' + (rowIndex + 1) + ': Frequency must be a positive whole number');
                 }
 
                 // Validation only during Submit
@@ -434,6 +510,18 @@
             });
 
             // Stop submission if mandatory fields are missing
+            if (freqErrors.length > 0) {
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Frequency',
+                    html: '<div style="text-align:left;"><ul><li>' +
+                        freqErrors.join('</li><li>') + '</li></ul></div>'
+                });
+
+                return;
+            }
+
             if (status === "Y" && validationErrors.length > 0) {
 
                 Swal.fire({
@@ -505,11 +593,9 @@
         $('#btnSubmit').on('click', function () {
             saveFactoryAct("Y");
         });
-                 
+
         });
 
 
     </script>
 }
-
-

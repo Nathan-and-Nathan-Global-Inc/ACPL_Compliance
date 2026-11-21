@@ -7,6 +7,13 @@ using SupermarketRepository;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace calibpro.Controllers
 {
@@ -16,8 +23,12 @@ namespace calibpro.Controllers
         private readonly ILogger<FactoryActTransController> _logger;
         private readonly MasterCrudClass _masterCrudClass;
         public readonly ILogger<MasterRepository> masterlogger;
-        public FactoryActTransController(ILogger<FactoryActTransController> logger, DBClass db, ILogger<MasterRepository> _masterlogger, MasterCrudClass masterClass)
+        private readonly IConfiguration _config;
+        private readonly IWebHostEnvironment _env;
+        public FactoryActTransController(ILogger<FactoryActTransController> logger, DBClass db, ILogger<MasterRepository> _masterlogger, MasterCrudClass masterClass, IConfiguration config, IWebHostEnvironment env)
         {
+            _config = config;
+            _env = env;
             _logger = logger;
             _db = db;
             _masterCrudClass = masterClass;
@@ -48,7 +59,7 @@ namespace calibpro.Controllers
             var st = HttpContext.Session.GetString("User");
             Class_employees clsemp = JsonConvert.DeserializeObject<Class_employees>(st);
             ViewBag.entry_by = clsemp.empl_name;
-            return View(new Class_factory_act_hdr {});
+            return View(new Class_factory_act_hdr { });
         }
 
         // POST: /Factory Acts/Create
@@ -162,7 +173,7 @@ namespace calibpro.Controllers
                     entry_dt = model.entry_dt,
                     created_by = clsemp.empl_slno,
                     created_dt = DateTime.Now,
-                    fin_year=model.fin_year,
+                    fin_year = model.fin_year,
                     submit_status = model.submit_status,
 
                     submitted_by = model.submit_status == "Y"
@@ -463,8 +474,8 @@ namespace calibpro.Controllers
         // GET: /Factory Acts/Delete/5
         public IActionResult Delete(int sl)
         {
-            var Factoryact= _db.SelectById<Class_factory_act_master>(sl);
-            if (Factoryact== null || Factoryact.del_status)
+            var Factoryact = _db.SelectById<Class_factory_act_master>(sl);
+            if (Factoryact == null || Factoryact.del_status)
             {
                 return NotFound();
             }
@@ -478,8 +489,8 @@ namespace calibpro.Controllers
         {
             try
             {
-                var Factoryact= _db.SelectById<Class_factory_act_master>(sl);
-                if (Factoryact== null)
+                var Factoryact = _db.SelectById<Class_factory_act_master>(sl);
+                if (Factoryact == null)
                 {
                     return NotFound();
                 }
@@ -650,6 +661,182 @@ namespace calibpro.Controllers
                     message = "Unable to check the financial year."
                 });
             }
+        }
+
+        // GET: /FactoryActTrans/DownloadReport?sl=5
+        [HttpGet]
+        public IActionResult DownloadReport(int sl)
+        {
+            try
+            {
+                var header = _db.SelectById<Class_factory_act_hdr>(sl);
+                if (header == null)
+                    return NotFound();
+
+                // Saved rows of this header, with the latest master text (same as Edit screen)
+                var rows = (
+                    from master in _db.SelectAll<Class_factory_act_master>().Where(x => !x.del_status)
+                    join child in _db.SelectAll<Class_factory_act_child>().Where(x => x.fact_act_hdr_slno == sl)
+                        on master.factory_act_slno equals child.factory_act_slno
+                    orderby master.factory_act_slno
+                    select new { master, child }
+                ).ToList();
+
+                // Header values from appsettings.json
+                string formatNo = _config["FactoryActReport:FormatNo"] ?? "";
+                string formatRev = _config["FactoryActReport:FormatRevNo"] ?? "";
+                string formatRevDt = _config["FactoryActReport:FormatRevDate"] ?? "";
+                string templateRel = _config["FactoryActReport:TemplatePath"] ?? "ReportTemplates/Factory_Act_Report.xlsx";
+
+                string templatePath = Path.Combine(_env.ContentRootPath, templateRel);
+                if (!System.IO.File.Exists(templatePath))
+                {
+                    _logger.LogError("Factory Act report template not found: {path}", templatePath);
+                    return NotFound("Report template not found.");
+                }
+
+                // "Updated on" = last modified, else created
+                DateTime? updatedOn = header.modified_dt;
+                if (updatedOn == null || updatedOn == DateTime.MinValue)
+                    updatedOn = header.created_dt;
+
+                using (var tplStream = new MemoryStream(System.IO.File.ReadAllBytes(templatePath)))
+                using (var package = new ExcelPackage(tplStream))
+                {
+                    var ws = package.Workbook.Worksheets[0];
+
+                    // ---- header block (template cells) ----
+                    ws.Cells["N1"].Value = formatNo;                                  // Format No
+                    ws.Cells["N2"].Value = $"{formatRev}, {formatRevDt}";             // Format Rev, Date
+                    ws.Cells["N3"].Value = updatedOn.Value.ToString("dd.MM.yyyy");    // Updated on (Date)
+
+                    // ---- data rows start at row 8 (rows 6-7 are the column headers) ----
+                    int r = 8;
+                    int sn = 1;
+
+                    foreach (var x in rows)
+                    {
+                        var m = x.master;
+                        var c = x.child;
+
+                        string freqRenewal = FormatFrequencyOfRenewal(c.freq_renewal, Convert.ToString(c.freq));
+
+                        // col numbers: A=1 B:C=2-3 D:E=4-5 F:G=6-7 H:I=8-9 J:K=10-11 L:M=12-13
+                        //              N:O=14-15 P:Q=16-17 R:S=18-19 T:U=20-21 V=22 W=23 X=24 Y=25
+                        PutReportCell(ws, r, 1, 1, sn.ToString(), true);
+                        PutReportCell(ws, r, 2, 3, m.legal_requirement, false);
+                        PutReportCell(ws, r, 4, 5, m.compliance_rule_act_reference, false);
+                        PutReportCell(ws, r, 6, 7, m.compliance_approving_authority, false);
+                        PutReportCell(ws, r, 8, 9, m.appointed_competent_person, false);
+                        PutReportCell(ws, r, 10, 11, c.form_no, true);
+                        PutReportCell(ws, r, 12, 13, freqRenewal, true);
+                        PutReportCell(ws, r, 14, 15, FormatReportDate(c.date_of_filing), true);
+                        PutReportCell(ws, r, 16, 17, FormatReportDate(c.valid_from), true);
+                        PutReportCell(ws, r, 18, 19, FormatReportDate(c.valid_upto), true);
+                        PutReportCell(ws, r, 20, 21, FormatReportDate(c.next_due_date), true);
+                        PutReportCell(ws, r, 22, 22, c.responsibility, true);
+                        PutReportCell(ws, r, 23, 23, c.responsible_person, true);
+                        PutReportCell(ws, r, 24, 24, c.status, true);
+                        PutReportCell(ws, r, 25, 25, c.remarks, false);
+
+                        // merged cells do not auto-fit, so estimate the row height from the longest text
+                        int lines = new[]
+                        {
+                            LineCount(m.legal_requirement, 18),
+                            LineCount(m.compliance_rule_act_reference, 18),
+                            LineCount(m.compliance_approving_authority, 18),
+                            LineCount(m.appointed_competent_person, 18),
+                            LineCount(c.responsible_person, 9),
+                            LineCount(c.remarks, 10)
+                        }.Max();
+                        ws.Row(r).Height = Math.Max(24, lines * 12.5);
+
+                        r++;
+                        sn++;
+                    }
+
+                    {
+                        byte[] bytes = package.GetAsByteArray();
+                        string finYear = (header.fin_year ?? "").Replace("/", "-").Replace("\\", "-");
+                        string fileName = $"Factory_Act_Report_{finYear}.xlsx";
+                        return File(bytes,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating Factory Act report");
+                TempData["msg"] = "Error generating report";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+
+        // "Months"/"Years" + 6  ->  "6 Months";  1 -> "1 Month"
+        private static string FormatFrequencyOfRenewal(string unit, string freq)
+        {
+            unit = (unit ?? "").Trim();
+            freq = (freq ?? "").Trim();
+
+            if (unit == "" && freq == "") return "";
+
+            if (decimal.TryParse(freq, NumberStyles.Any, CultureInfo.InvariantCulture, out var n))
+            {
+                if (n == 1 && unit.EndsWith("s", StringComparison.OrdinalIgnoreCase))
+                    unit = unit.Substring(0, unit.Length - 1);          // Months -> Month
+
+                return $"{n.ToString("0.##", CultureInfo.InvariantCulture)} {unit}".Trim();
+            }
+            return $"{freq} {unit}".Trim();
+        }
+
+        // dates are stored as text (dd-MM-yyyy from the grid, sometimes yyyy-MM-dd) -> dd-MM-yyyy
+        private static string FormatReportDate(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return "";
+
+            string[] formats =
+            {
+                "dd-MM-yyyy", "yyyy-MM-dd", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-dd HH:mm:ss",
+                "dd/MM/yyyy", "dd.MM.yyyy"
+            };
+
+            if (DateTime.TryParseExact(value.Trim(), formats, CultureInfo.InvariantCulture,
+                                       DateTimeStyles.None, out var d))
+                return d.ToString("dd-MM-yyyy");
+
+            return value;   // unknown format - show as stored
+        }
+
+        private static int LineCount(string text, int charsPerLine)
+        {
+            if (string.IsNullOrEmpty(text)) return 1;
+            return text.Split('\n').Sum(p => Math.Max(1, (int)Math.Ceiling(p.Length / (double)charsPerLine)));
+        }
+
+        // writes one (optionally merged) bordered data cell in the template's style
+        private static void PutReportCell(ExcelWorksheet ws, int row, int fromCol, int toCol,
+                                          string text, bool center)
+        {
+            using (var rng = ws.Cells[row, fromCol, row, toCol])
+            {
+                if (toCol > fromCol) rng.Merge = true;
+
+                rng.Style.Font.Name = "Calibri";
+                rng.Style.Font.Size = 9;
+                rng.Style.HorizontalAlignment = center ? ExcelHorizontalAlignment.Center
+                                                       : ExcelHorizontalAlignment.Left;
+                rng.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                rng.Style.WrapText = true;
+                rng.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                rng.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                rng.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                rng.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+            }
+
+            ws.Cells[row, fromCol].Value = text ?? "";
         }
     }
 }
