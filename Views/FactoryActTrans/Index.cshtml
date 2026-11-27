@@ -1,0 +1,276 @@
+@model IEnumerable<Class_factory_act_hdr>
+
+@using Newtonsoft.Json
+
+@{
+    ViewData["Title"] = "Factory Act Requirements";
+}
+
+<div class="container mt-3">
+
+    <h3 class="page-title">
+        Factory Act Requirements
+
+        <a href="javascript:void(0);"
+           class="btn btn-custom btn-add-new"
+           onclick="checkExistingFinancialYear()">
+            Add New
+        </a>
+    </h3>
+
+    <div id="factory-act-table"></div>
+
+</div>
+
+<script>
+
+    chkresponse();
+
+    function chkresponse() {
+
+        var msg = '@TempData["msg"]';
+
+        if (msg === 'Data Submitted') {
+            showSubmitAlert();
+        }
+        else if (msg === 'Data Saved') {
+            showSaveAlert();
+        }
+        else if (msg === 'Data Deleted') {
+            showDeleteAlert();
+        }
+    }
+
+    (function () {
+
+        var tableData = @Html.Raw(
+                        JsonConvert.SerializeObject(Model)
+                );
+
+        var table = new Tabulator("#factory-act-table", {
+
+            data: tableData,
+            reactiveData: false,
+            layout: "fitColumns",
+            placeholder: "No factory act records found",
+
+            pagination: true,
+            paginationSize: 10,
+            paginationSizeSelector: [10, 25, 50, 100],
+
+            columns: [
+                    // Index.cshtml  -  Tabulator columns: add this block right after the EDIT column
+    // (so each row shows Edit | Download | ... | Delete). Shown for every row, Draft or Submitted.
+
+                    // DOWNLOAD REPORT
+                    {
+                        title: "",
+                        field: "fact_act_hdr_slno",
+                        width: 60,
+                        hozAlign: "center",
+                        headerSort: false,
+
+                        formatter: function (cell) {
+
+                            var id = cell.getValue();
+
+                            var downloadUrl =
+                                '@Url.Action("DownloadReport", "FactoryActTrans")'
+                                + '?sl=' + id;
+
+                            return '<a href="' + downloadUrl +
+                                '" class="btn btn-link p-0" title="Download Report">' +
+                                '<i class="bi bi-download" ' +
+                                'style="font-size:1.1rem"></i>' +
+                                '</a>';
+                        }
+                    },
+
+                // EDIT
+                {
+                    title: "",
+                    field: "fact_act_hdr_slno",
+                    width: 60,
+                    hozAlign: "center",
+                    headerSort: false,
+
+                    formatter: function (cell) {
+
+                        var id = cell.getValue();
+
+                        var editUrl =
+                            '@Url.Action("Edit", "FactoryActTrans")'
+                            + '?sl=' + id;
+
+                        return '<a href="' + editUrl +
+                            '" class="btn btn-link p-0" title="Edit">' +
+                            '<i class="bi bi-pencil-square edit-icon" ' +
+                            'style="font-size:1.1rem"></i>' +
+                            '</a>';
+                    }
+                },
+
+
+                // ID (HIDDEN)
+                {
+                    title: "Id",
+                    field: "fact_act_hdr_slno",
+                    visible: false
+                },
+
+                // FINANCIAL YEAR
+                {
+                    title: "Financial Year",
+                    field: "fin_year",
+                    headerFilter: true,
+                    minWidth: 180
+                },
+
+                // ENTRY BY
+                {
+                    title: "Entry By",
+                    field: "entry_by",
+                    headerFilter: true,
+                    minWidth: 180
+                },
+
+                // ENTRY DATE
+                {
+                    title: "Entry Date",
+                    field: "entry_dt",
+                    headerFilter: true,
+                    minWidth: 130,
+
+                    formatter: function (cell) {
+
+                        var value = cell.getValue();
+
+                        if (!value) {
+                            return "";
+                        }
+
+                        var parts = value.toString().split('-');
+
+                        if (parts.length === 3) {
+
+                            if (parts[0].length === 4) {
+
+                                return parts[2] + '-' +
+                                    parts[1] + '-' +
+                                    parts[0];
+                            }
+
+                            return value;
+                        }
+
+                        return value;
+                    }
+                },
+
+                // SUBMISSION STATUS
+                {
+                    title: "Status",
+                    field: "submit_status",
+                    hozAlign: "center",
+                    headerFilter: true,
+                    width: 130,
+
+                    formatter: function (cell) {
+
+                        var value = cell.getValue();
+
+                        if (value === "Y") {
+
+                            return '<span class="badge bg-success">' +
+                                'Submitted</span>';
+                        }
+                        else {
+
+                            return '<span class="badge bg-warning text-dark">' +
+                                'Draft</span>';
+                        }
+                    }
+                },
+
+                // DELETE
+                {
+                    title: "",
+                    field: "fact_act_hdr_slno",
+                    width: 60,
+                    hozAlign: "center",
+                    headerSort: false,
+
+                    formatter: function (cell) {
+
+                        var rowData = cell.getRow().getData();
+
+                        // Hide Delete button for submitted records
+                        if (rowData.submit_status === "Y") {
+                            return "";
+                        }
+
+                        var id = cell.getValue();
+
+                        var deleteUrl =
+                            '@Url.Action("Delete", "FactoryActTrans")'
+                            + '?sl=' + id;
+
+                        return '<a href="' + deleteUrl +
+                            '" class="btn btn-link text-danger p-0" ' +
+                            'title="Delete">' +
+                            '<i class="bi bi-trash-fill delete-icon" ' +
+                            'style="font-size:1.1rem"></i>' +
+                            '</a>';
+                    }
+                }
+
+            ]
+        });
+
+    })();
+
+        function checkExistingFinancialYear() {
+
+        $.ajax({
+            url: '@Url.Action("AddNew", "FactoryActTrans")',
+            type: 'GET',
+
+            success: function (response) {
+
+                if (response.exists) {
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Already Present',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+
+                        if (result.isConfirmed) {
+
+                            window.location.href =
+                                '@Url.Action("Edit", "FactoryActTrans")'
+                                + '?sl=' + response.id;
+                        }
+                    });
+
+                }
+                else {
+
+                    window.location.href = response.redirectUrl;
+
+                }
+            },
+
+            error: function () {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Unable to check the financial year.'
+                });
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,601 @@
+﻿@model Class_factory_act_hdr
+
+@{
+    ViewData["Title"] = "Create Factory Act";
+}
+
+<div class="container mt-3">
+    <h2>Create Factory Act Requirements</h2>
+    <hr />
+    <form asp-action="Create" method="post" id="group-form">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label class="form-label mandatory">Financial Year</label>
+                    <input type="text"
+                           id="fin_year"
+                           name="fin_year"
+                           class="form-control"
+                           value="@Model.fin_year"
+                           readonly />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label asp-for="entry_by" class="form-label mandatory"></label>
+                    <input asp-for="entry_by" class="form-control" id="entry_by" value="@ViewBag.entry_by" readonly />
+                    <span asp-validation-for="entry_by" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mb-3">
+                    <label asp-for="entry_dt" class="form-label mandatory"></label>
+                    <input asp-for="entry_dt" class="form-control" id="entry_dt" type="date" />
+                    <span asp-validation-for="entry_dt" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div id="hot"></div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-save" id="btnSave">Save</button>
+
+            <button type="button" class="btn btn-submit" id="btnSubmit">Submit</button>
+            <a asp-action="Index" class="btn btn-list">List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        $(document).ready(function () {
+
+                 // Set current Financial Year (April - March)
+        function setFinancialYear() {
+
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = today.getMonth() + 1;
+
+            var startYear = month >= 4 ? year : year - 1;
+            var endYear = startYear + 1;
+
+            var financialYear = startYear + '-' + endYear;
+
+            // Preserve existing financial year during Edit
+            if (!$('#fin_year').val()) {
+                $('#fin_year').val(financialYear);
+            }
+        }
+
+        setFinancialYear();
+            var hot = null;
+            // Set current date as the default Entry Date
+            const currentDate = new Date();
+
+            const formattedDate =
+                currentDate.getFullYear() + '-' +
+                String(currentDate.getMonth() + 1).padStart(2, '0') + '-' +
+                String(currentDate.getDate()).padStart(2, '0');
+
+            $('#entry_dt').val(formattedDate);
+
+            var employees = [];
+            var employeeLookup = {};
+
+            GetEmployees();
+
+                    function GetEmployees() {
+            $.ajax({
+                url: '@Url.Action("GetEmployeesList", "FactoryActTrans")',
+                type: 'GET',
+
+                success: function (data) {
+
+                    $.each(data, function (index, value) {
+                        var name = (value.empl_name || '').trim();
+
+                        employees.push(name);
+                        employeeLookup[name] = value.empl_slno;
+                    });
+
+                    console.log('Employees:', employees);
+
+                    // Load Factory Act master records
+                    GetFactoryActMaster();
+                },
+
+                error: function (xhr, status, error) {
+                    Swal.fire("Error", "Unable to load employees: " + error, "error");
+                }
+            });
+        }
+
+        function GetFactoryActMaster() {
+            $.ajax({
+                url: '@Url.Action("GetFactoryActMasterList", "FactoryActTrans")',
+                type: 'GET',
+
+                success: function (data) {
+
+                    console.log('Factory Act Master:', data);
+
+                    // Prepare Handsontable rows
+                    var factoryActData = [];
+
+                    $.each(data, function (index, value) {
+
+                        factoryActData.push([
+                            value.legal_requirement,
+                            value.compliance_rule_act_reference,
+                            value.compliance_approving_authority,
+                            value.appointed_competent_person,
+                            null,  // Form Nos
+                            null,  // Frequency of Renewal
+                            null,  // Frequency
+                            null,  // Date of Filing
+                            null,  // Valid From
+                            null,  // Valid Upto
+                            null,  // Next Due Date
+                            null,  // Responsibility
+                            null,  // Responsible Person
+                            null,  // Status
+                            null,  // Remarks
+                            value.factory_act_slno // Hidden Factory Act ID
+                        ]);
+                    });
+
+                    InitializeHandsontable(factoryActData);
+                },
+
+                error: function (xhr, status, error) {
+                    Swal.fire("Error", "Unable to load Factory Act master records: " + error, "error");
+                }
+            });
+        }
+
+            function InitializeHandsontable(factoryActData) {
+
+                var $container1 = $("#hot");
+
+                $container1.handsontable({
+                     data: factoryActData,
+                    startRows: 1, //number of rows to be displayed at initialization
+                rowHeaders: true,
+                rowHeaderWidth: 50,
+                width: '100%',
+                height: 500,
+
+                    colWidths: [
+                        300, 300, 300, 400, 100, 200, 160,
+                        130, 130, 130, 250, 220, 220,150,200,0.1
+                    ],
+
+
+                    colHeaders: [
+                        'Legal Requirement',
+                        'Compliance Rule / Act Reference',
+                        'Compliance Approving Authority',
+                        'Name of the Appointed / Designated Competent Person',
+                        "<span class='mandatory'>Form Nos</span>",
+                        "<span class='mandatory'>Frequency of Renewal</span>",
+                        "<span class='mandatory'>Frequency</span>",
+                        "<span class='mandatory'>Date of Filing</span>",
+                        "<span class='mandatory'>Valid From</span>",
+                        'Valid Upto',
+                        "<span class='mandatory'>Next Due Date for Application Filing</span>",
+                        "<span class='mandatory'>Responsibility</span>",
+                        "<span class='mandatory'>Responsible Person</span>",
+                        "<span class='mandatory'>Status</span>",
+                        'Remarks',
+                        'Factory act hdr slno'
+                    ],
+
+                    columns: [
+                        { type: 'text', readOnly: true },
+                        { type: 'text', readOnly: true },
+                        { type: 'text', readOnly: true },
+                        { type: 'text', readOnly: true },
+                        { type: 'text'},
+                        { type: 'dropdown', source: ['Months', 'Years'] },
+                                {
+            type: 'numeric',
+            numericFormat: {
+                pattern: '0'
+            },
+            allowInvalid: true      // validation is done in beforeChange (rejects 0, decimals, text)
+        },
+                        { type: 'text'},
+                        {
+                            type: 'date',
+                            allowInvalid: false,
+                            dateFormat: 'DD-MM-YYYY',
+                            correctFormat: true,
+                            datePickerConfig: {
+                                firstDay: 1,
+                                format: 'DD-MM-YYYY',
+                                showWeekNumber: true,
+                                numberOfMonths: 1
+                            }
+                        },
+                        { type: 'text', readOnly: true },
+                        {
+                            type: 'date',
+                            allowInvalid: false,
+                            dateFormat: 'DD-MM-YYYY',
+                            correctFormat: true,
+                            datePickerConfig: {
+                                firstDay: 1,
+                                format: 'DD-MM-YYYY',
+                                showWeekNumber: true,
+                                numberOfMonths: 1
+                            }
+                        },
+                        { type: 'text' },
+                        { type: 'dropdown', source: employees },
+                        { type: 'dropdown', source: ['Pending', 'InProgress', 'Completed'] },
+                        { type: 'text' },
+                         { type: 'text' },
+                    ],
+                            // Frequency (column 6): block non-digit keystrokes while typing
+                            beforeKeyDown: function (e) {
+
+                                var selAll = this.getSelected();      // works on old and new Handsontable
+                                var sel = (selAll && selAll.length)
+                                    ? (Array.isArray(selAll[0]) ? selAll[selAll.length - 1] : selAll)
+                                    : null;
+
+                                if (!sel || sel[1] !== 6 || e.ctrlKey || e.metaKey || e.altKey) {
+                                    return;
+                                }
+
+                                // single printable character that is not 0-9 (includes space, '.', '-', 'e', letters)
+                                if (e.key && e.key.length === 1 && !/^[0-9]$/.test(e.key)) {
+                                    e.stopImmediatePropagation();
+                                    e.preventDefault();
+                                }
+                            },
+
+                            // Frequency (column 6): reject on change (paste / drag-fill / any other entry)
+                            beforeChange: function (changes, source) {
+
+                                if (!changes || source === 'loadData') {
+                                    return;
+                                }
+
+                                var rejected = false;
+
+                                for (var i = changes.length - 1; i >= 0; i--) {
+
+                                    if (!changes[i] || changes[i][1] !== 6) {
+                                        continue;
+                                    }
+
+                                    var newValue = changes[i][3];
+
+                                    if (newValue !== null && newValue !== undefined &&
+                                        String(newValue).trim() !== '' &&
+                                        !(/^[0-9]+$/.test(String(newValue).trim()) &&
+                                          Number(newValue) > 0)) {
+
+                                        changes.splice(i, 1);       // reject this change
+                                        rejected = true;
+                                    }
+                                }
+
+                                if (rejected) {
+                                    Swal.fire(
+                                        "Invalid Frequency",
+                                        "Only positive whole numbers are allowed (e.g. 6).",
+                                        "warning"
+                                    );
+
+                                    if (changes.length === 0) {
+                                        return false;               // nothing left to apply
+                                    }
+                                }
+                            },
+
+                            afterChange: function (changes, source) {
+
+            if (!changes || source === 'loadData' || source === 'auto-calc') {
+                return;
+            }
+
+            var hot = this;
+
+            changes.forEach(function (change) {
+
+                var row = change[0];
+                var col = change[1];
+
+                // Recalculate when Frequency Type, Frequency Value
+                // or Valid From changes
+                if ([5, 6, 8].includes(col)) {
+
+                    var frequencyType = hot.getDataAtCell(row, 5);
+                    var rawFrequency = hot.getDataAtCell(row, 6);
+                    var frequencyValue = /^\d+$/.test(String(rawFrequency).trim())
+                        ? Number(rawFrequency) : NaN;
+                    var validFrom = hot.getDataAtCell(row, 8);
+
+                    // Clear Valid Upto if required values are missing
+                    if (!frequencyType || !frequencyValue || !validFrom ||
+                        frequencyValue <= 0) {
+
+                        hot.setDataAtCell(row, 9, null, 'auto-calc');
+                        return;
+                    }
+
+                    // Parse date in DD-MM-YYYY or YYYY-MM-DD format
+                    var dateParts = validFrom.toString().split('-');
+                    var startDate;
+
+                    if (dateParts[0].length === 4) {
+                        startDate = new Date(
+                            Number(dateParts[0]),
+                            Number(dateParts[1]) - 1,
+                            Number(dateParts[2])
+                        );
+                    } else {
+                        startDate = new Date(
+                            Number(dateParts[2]),
+                            Number(dateParts[1]) - 1,
+                            Number(dateParts[0])
+                        );
+                    }
+
+                    if (isNaN(startDate.getTime())) {
+                        hot.setDataAtCell(row, 9, null, 'auto-calc');
+                        return;
+                    }
+
+                    var validUpto = new Date(startDate);
+
+                    if (frequencyType === 'Months') {
+                        validUpto.setMonth(
+                            validUpto.getMonth() + frequencyValue
+                        );
+                    }
+                    else if (frequencyType === 'Years') {
+                        validUpto.setFullYear(
+                            validUpto.getFullYear() + frequencyValue
+                        );
+                    }
+                    // Format as DD-MM-YYYY
+                    var day = String(validUpto.getDate()).padStart(2, '0');
+                    var month = String(validUpto.getMonth() + 1).padStart(2, '0');
+                    var year = validUpto.getFullYear();
+
+                    var formattedDate = day + '-' + month + '-' + year;
+
+                    hot.setDataAtCell(row, 9, formattedDate, 'auto-calc');
+                }
+            });
+        },
+                    minSpareRows: 0,
+                    outsideClickDeselects: false,
+
+                    contextMenu: {
+                        items: {
+                            "row_above": {
+                                name: 'Insert row above',
+                                callback: function () {
+                                    const selected = (this.getSelected() || []).slice(-1)[0];
+
+                                    if (selected) {
+                                        const row = selected[0];
+                                        this.alter('insert_row', row);
+                                    }
+                                }
+                            },
+
+                            "row_below": {
+                                name: 'Insert row below',
+                                callback: function () {
+                                    const selected = (this.getSelected() || []).slice(-1)[0];
+
+                                    if (selected) {
+                                        const row = selected[0];
+                                        this.alter('insert_row', row + 1);
+                                    }
+                                }
+                            },
+
+                            "remove_row": {
+                                name: 'Delete row',
+                                callback: function () {
+                                    const selected = this.getSelected();
+
+                                    if (selected) {
+                                        const startRow = selected[0][0];
+                                        const endRow = selected[0][2];
+                                        const rowCount = endRow - startRow + 1;
+
+                                        this.alter('remove_row', startRow, rowCount);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                // Get Handsontable instance
+        hot = $container1.handsontable('getInstance');
+            }
+
+
+
+        function saveFactoryAct(status) {
+
+            var children = [];
+            var data = hot.getData();
+
+            var mandatoryColumns = [
+                { index: 0, name: 'Legal Requirement' },
+                { index: 1, name: 'Compliance Rule / Act Reference' },
+                { index: 2, name: 'Compliance Approving Authority' },
+                { index: 3, name: 'Name of the Appointed / Designated Competent Person' },
+                { index: 4, name: 'Form Nos' },
+                { index: 5, name: 'Frequency of Renewal' },
+                { index: 6, name: 'Frequency' },
+                { index: 7, name: 'Date of Filing' },
+                { index: 8, name: 'Valid From' },
+                { index: 9, name: 'Valid Upto' },
+                { index: 10, name: 'Next Due Date for Application Filing' },
+                { index: 11, name: 'Responsibility' },
+                { index: 12, name: 'Responsible Person' },
+                { index: 13, name: 'Status' },
+                { index: 15, name: 'Factory Act ID' }
+            ];
+
+            var validationErrors = [];
+            var freqErrors = [];
+
+            data.forEach(function (row, rowIndex) {
+
+                // Ignore completely empty rows
+                if (!row[0] && !row[1] && !row[2]) {
+                    return;
+                }
+
+                // Frequency must be a positive whole number (Save and Submit)
+                var freqVal = row[6];
+                if (freqVal !== null && freqVal !== undefined &&
+                    String(freqVal).trim() !== '' &&
+                    !(/^\d+$/.test(String(freqVal).trim()) && Number(freqVal) > 0)) {
+
+                    freqErrors.push('Row ' + (rowIndex + 1) + ': Frequency must be a positive whole number');
+                }
+
+                // Validation only during Submit
+                if (status === "Y") {
+
+                    mandatoryColumns.forEach(function (column) {
+
+                        var value = row[column.index];
+
+                        if (value === null || value === undefined ||
+                            value.toString().trim() === '') {
+
+                            validationErrors.push(
+                                'Row ' + (rowIndex + 1) + ': ' + column.name
+                            );
+                        }
+                    });
+                }
+
+                children.push({
+                    legal_requirement: row[0],
+                    compliance_rule_act_reference: row[1],
+                    compliance_approving_authority: row[2],
+                    appointed_competent_person: row[3],
+                    form_no: row[4],
+                    freq_renewal: row[5],
+                    freq: row[6] === '' ? null : row[6],
+                    date_of_filing: row[7],
+                    valid_from: row[8],
+                    valid_upto: row[9],
+                    next_due_date: row[10],
+                    responsibility: row[11],
+                    responsible_person: row[12],
+                    status: row[13],
+                    remarks: row[14],
+                    factory_act_slno: row[15],
+                    submit_status: status,
+                });
+            });
+
+            // Stop submission if mandatory fields are missing
+            if (freqErrors.length > 0) {
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Frequency',
+                    html: '<div style="text-align:left;"><ul><li>' +
+                        freqErrors.join('</li><li>') + '</li></ul></div>'
+                });
+
+                return;
+            }
+
+            if (status === "Y" && validationErrors.length > 0) {
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Please fill all mandatory fields',
+                    html: '<div style="text-align:left; max-height:300px; overflow-y:auto;">' +
+                        '<ul><li>' + validationErrors.join('</li><li>') + '</li></ul>' +
+                        '</div>'
+                });
+
+                return;
+            }
+
+            if (children.length === 0) {
+                Swal.fire("Warning", "Please add at least one Factory Act record.", "warning");
+                return;
+            }
+
+            var request = {
+                entry_by: $('#entry_by').val(),
+                entry_dt: $('#entry_dt').val(),
+                fin_year: $('#fin_year').val(),
+                submit_status: status,
+                children: children
+            };
+
+            $.ajax({
+                url: '@Url.Action("SaveFactoryAct", "FactoryActTrans")',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'RequestVerificationToken':
+                        $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: JSON.stringify(request),
+
+                success: function (response) {
+
+                    if (response.success) {
+                        Swal.fire("Success", response.message, "success")
+                            .then(function () {
+                                window.location.href =
+                                    '@Url.Action("Index", "FactoryActTrans")';
+                            });
+                    }
+                    else {
+                        Swal.fire("Error", response.message, "error");
+                    }
+                },
+
+                error: function (xhr) {
+
+                    var message = "Error while saving Factory Act data.";
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+
+                    Swal.fire("Error", message, "error");
+                }
+            });
+        }
+
+
+        $('#btnSave').on('click', function () {
+            saveFactoryAct("N");
+        });
+
+        $('#btnSubmit').on('click', function () {
+            saveFactoryAct("Y");
+        });
+
+        });
+
+
+    </script>
+}
