@@ -18,7 +18,7 @@ param(
     # Optional override for the ZIP's app name; default is the csproj name
     [string]$AppName       = "",
     # Target output folder for the ZIP (your OneDrive folder). You can override at runtime if needed.
-    [string]$ReleaseFolder = "E:\OneDrive - Nathan and Nathan Global Inc\_share_with_customers\ascent_releases_stagging"
+    [string]$ReleaseFolder = "D:\ACPL\published_files"
 )
 
 $ErrorActionPreference = "Stop"

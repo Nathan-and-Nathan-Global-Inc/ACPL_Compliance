@@ -685,10 +685,14 @@ namespace calibpro.Controllers
                 // Header values from appsettings.json
                 string formatNo = _config["FactoryActReport:FormatNo"] ?? "";
                 string formatRev = _config["FactoryActReport:FormatRevNo"] ?? "";
-                string formatRevDt = _config["FactoryActReport:FormatRevDate"] ?? "";
-                string templateRel = _config["FactoryActReport:TemplatePath"] ?? "ReportTemplates/Factory_Act_Report.xlsx";
+                string formatRevDt = _config["FactoryActReport:FormatRevDate"] ?? "";                
 
-                string templatePath = Path.Combine(_env.ContentRootPath, templateRel);
+                string templatePath = Path.Combine(
+                    _env.WebRootPath,
+                    "templates",
+                    "Factory_Act_Report.xlsx"
+                );
+
                 if (!System.IO.File.Exists(templatePath))
                 {
                     _logger.LogError("Factory Act report template not found: {path}", templatePath);
