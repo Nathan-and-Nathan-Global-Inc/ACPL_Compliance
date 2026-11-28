@@ -1,97 +1,60 @@
 ﻿@model IEnumerable<Class_factory_act_report>
-
-    <div style="overflow:auto;">
-        <table class="table table-bordered table-hover" id="tblidx">
-            <thead style="text-wrap:none">
+<style>
+    #tblidx thead th {
+        background-color: #bfbfbf;
+        color: #212529;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        border: 1px solid #6c757d;
+    }
+</style>
+<div style="overflow:auto;">
+    <table class="table table-bordered table-hover" id="tblidx">
+        <thead>
+            <tr>
+                <th>Sl No</th>
+                <th>Legal Requirement</th>
+                <th>Compliance Rule / Act reference</th>
+                <th>Compliance Approving Authority</th>
+                <th>Name of the appointed / designated competent person</th>
+                <th>Form No's</th>
+                <th>Frequency of renewal</th>
+                <th>Date of Filing</th>
+                <th>Valid From</th>
+                <th>Valid Upto</th>
+                <th>Next Due Date for application filing</th>
+                <th>Responsibility</th>
+                <th>Responsible Person</th>
+                <th>Status</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int sno = 1;
+            }
+            @foreach (var item in Model ?? Enumerable.Empty<Class_factory_act_report>())
+            {
                 <tr>
-                    <th>
-                        Slno
-                    </th>
-                    <th>
-                        Legal Requirement
-                    </th>
-                    <th>
-                        Compliance Rule / Act reference
-                    </th>
-                    <th>
-                        Compliance Approving Authority
-                    </th>
-                    <th>
-                        Name of the appointed / designated competent person 
-                    </th>
-                <th>
-                    Form No's
-                </th>
-                <th>
-                    Frequency of renewal
-                </th>
-                <th>
-                    Date of Filing
-                </th>
-                <th>
-                    Valid From
-                </th>
-                <th>
-                    Valid Upto
-                </th>
-                <th>
-                    Next Due Date for application filing
-                </th>
-                <th>
-                    Responsibility
-                </th>
-                <th>
-                    Remarks(Complied/Under Progress/Not Complied
-                </th>
+                    <td>@sno</td>
+                    <td>@item.legal_requirement</td>
+                    <td>@item.compliance_rule_act_reference</td>
+                    <td>@item.compliance_approving_authority</td>
+                    <td>@item.appointed_competent_person</td>
+                    <td>@item.form_no</td>
+                    <td>@(item.freq.HasValue ? $"{item.freq} {item.freq_renewal}" : item.freq_renewal)</td>
+                    <td>@item.date_of_filing</td>
+                    <td>@item.valid_from</td>
+                    <td>@item.valid_upto</td>
+                    <td>@item.next_due_date</td>
+                    <td>@item.responsibility</td>
+                    <td>@item.responsible_person</td>
+                    <td>@item.status</td>
+                    <td>@item.remarks</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in ViewBag.indexdata)
-                {
-                    <tr>
-
-                        <td>
-                        @item.factory_act_slno
-                        </td>
-                        <td>
-                            @item.legal_requirement
-                        </td>
-                        <td>
-                            @item.compliance_rule_act_reference
-                        </td>
-                        <td>
-                            @item.compliance_approving_authority
-                        </td>
-                        <td>
-                            @item.appointed_competent_person
-                        </td>
-                        <td>
-                            @item.jan
-                        </td>
-                        <td>
-                            @item.feb
-                        </td>
-                        <td>
-                            @item.mar
-                        </td>
-                        <td>
-                            @item.apr
-                        </td>
-                        <td>
-                            @item.may
-                        </td>
-                        <td>
-                            @item.jun
-                        </td>
-                        <td>
-                            @item.jul
-                        </td>
-                        <td>
-                            @item.aug
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-   
+                sno++;
+            }
+        </tbody>
+    </table>
+</div>
